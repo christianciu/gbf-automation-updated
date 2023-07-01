@@ -69,6 +69,22 @@ class MouseUtils:
         return None
 
     @staticmethod
+    def click(hold_time: int = None):
+        """Perform a left click
+
+        Args:
+            hold_time (int): how long to hold down the mouse button
+
+        Returns:
+            None
+        """
+        if not hold_time:
+            hold_time = np.random.uniform(0.02, 0.12)
+        pyautogui.mouseDown()
+        sleep(hold_time)
+        pyautogui.mouseUp()
+
+    @staticmethod
     def move_and_click_point(x: int, y: int, image_name: str, custom_mouse_speed: float = 0.0, mouse_clicks: int = np.random.randint(1,3), custom_wait: Optional[float]=None):
         """Move the cursor to the specified point on the screen and clicks it.
 
@@ -92,14 +108,10 @@ class MouseUtils:
 
         MouseUtils.move_to(new_x,new_y, custom_mouse_speed=custom_mouse_speed)
         
-        pyautogui.mouseDown()
-        sleep(np.random.uniform(0.02, 0.12))
-        pyautogui.mouseUp()
+        MouseUtils.click()
         for i in range (0, mouse_clicks-1):
             sleep(np.random.uniform(0.08,0.16))
-            pyautogui.mouseDown()
-            sleep(np.random.uniform(0.02, 0.12))
-            pyautogui.mouseUp()
+            MouseUtils.click()
 
         # This delay is necessary as ImageUtils will take the screenshot too fast and the bot will use the last frame before clicking to navigate.
         if custom_wait is not None:

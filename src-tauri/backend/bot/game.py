@@ -353,6 +353,8 @@ class Game:
                 # This is the right half of the screen.
                 MouseUtils.move_to(100, curr_y, custom_mouse_speed = Settings.custom_mouse_speed)
 
+            MouseUtils.click()  # Clicking off-screen is human-like behavior
+
             # Now wait for several seconds before continuing.
             new_seconds = random.randrange(0, 2)
             MessageLog.print_message(f"[INFO] Now waiting {new_seconds} seconds...")
