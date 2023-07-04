@@ -1,0 +1,7 @@
+Turn 1:
+	attackback
+end
+
+Turn 2:
+	reload
+end
