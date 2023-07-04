@@ -879,7 +879,7 @@ class ImageUtils:
             (Tuple[int, int]): Tuple of the width and the height of the image.
         """
         if Settings.custom_scale == 1.0:
-            image = PIL.Image.open(f"{ImageUtils._current_dir}/images/buttons/{image_name}.jpg")
+            image = PIL.Image.open(f"{ImageUtils._current_dir}/images/buttons/{image_name.lower()}.jpg")
         else:
             image = PIL.Image.open(f"temp/rescaled.png")
         width, height = image.size
