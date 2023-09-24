@@ -225,6 +225,6 @@ class Settings:
     home_button_location: Tuple[int, int] = None
     calibration_complete: bool = False
     additional_calibration_required: bool = False
-    party_selection_first_run: bool = True
+    party_selection_first_run: bool = False
     no_party_selection: bool = False
     # ################## end of Window Dimensions ###################
