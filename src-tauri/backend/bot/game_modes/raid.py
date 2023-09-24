@@ -193,7 +193,7 @@ class Raid:
             position = ImageUtils.find("raid_time_remaining")
             if position:
                 MouseUtils.move_and_click_point(position[0], position[1], "raid_time_remaining")
-                MessageLog.print_message("[RAID] Successfully joined a raid.")
+                MessageLog.print_message("[RAID] Successfully found a raid.")
                 break
             else:
                 tries -= 1
