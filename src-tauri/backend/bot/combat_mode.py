@@ -699,14 +699,14 @@ class CombatMode:
         # Execute every skill command in the list.
         while len(skill_command_list) > 0:
             # Stop if the Next button is present.
-            if ImageUtils.find_button("next", tries = 1, suppress_error = True):
+            if Settings.farming_mode == "Raid" and ImageUtils.find_button("next", tries = 1, suppress_error = True):
                 return False
 
             if skill_command_list[0].__contains__("wait"):
                 CombatMode._wait_execute(skill_command_list)
                 skill_command_list.pop(0)
             elif skill_command_list[0].__contains__("attack"):
-                CombatMode._end()
+                CombatMode._reload()
                 return True
             else:
                 skill = skill_command_list.pop(0)
@@ -740,9 +740,10 @@ class CombatMode:
                 y = CombatMode._attack_button_location[1] + y_offset
 
                 MouseUtils.move_and_click_point(x, y, "template_skill")
+                Game.wait(.1)
 
                 # Check if the skill requires a target.
-                if len(skill_command_list) > 0 and ImageUtils.confirm_location("use_skill", bypass_general_adjustment = True):
+                if len(skill_command_list) > 0 and "target" in skill_command_list[0]:
                     MessageLog.print_message(f"[COMBAT] Skill is awaiting a target...")
                     target = skill_command_list.pop(0)
 
@@ -793,10 +794,11 @@ class CombatMode:
                         MessageLog.print_message("[WARNING] Invalid command received for Skill targeting.")
                         Game.find_and_click_button("cancel")
 
+                # TODO: Add back this skill sealed check if needed
                 # Else, check if the character is skill-sealed.
-                elif ImageUtils.confirm_location("skill_unusable", bypass_general_adjustment = True):
-                    MessageLog.print_message("[COMBAT] Character is currently skill-sealed. Unable to execute command.")
-                    Game.find_and_click_button("cancel")
+                # elif ImageUtils.confirm_location("skill_unusable", bypass_general_adjustment = True):
+                #     MessageLog.print_message("[COMBAT] Character is currently skill-sealed. Unable to execute command.")
+                #     Game.find_and_click_button("cancel")
 
         # Once all the commands for the selected Character have been processed, click the "Back" button to return.
         Game.find_and_click_button("back")

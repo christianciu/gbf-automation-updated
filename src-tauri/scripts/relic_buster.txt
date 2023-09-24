@@ -1,0 +1,3 @@
+Turn 1:
+	character1.useSkill(1).useSkill(2).attack()
+end
