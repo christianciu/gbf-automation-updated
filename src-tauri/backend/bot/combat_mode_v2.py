@@ -196,7 +196,7 @@ class CombatModeV2:
         Log.print_message("[COMBAT] Bot will now attempt to enable Full Auto...")
 
         # If the bot failed to find and click the "Full Auto" button, fallback to the "Semi Auto" button.
-        if not Game.find_and_click_button("full_auto"):
+        if not Game.find_and_click_button("full_auto") and not ImageUtils.find_button("full_auto_enabled"):
             Log.print_message("[COMBAT] Bot failed to find the \"Full Auto\" button. Falling back to Semi Auto.")
             CombatModeV2._enable_semi_auto()
         else:

@@ -578,10 +578,16 @@ class Game:
             Game.wait(3.0)
             return False
 
-        Game.wait(2)
         if not Settings.combat_script or Settings.combat_script_name == "semi_auto.txt" or Settings.combat_script_name == "full_auto.txt":
-            MouseUtils.click()
-            Game._move_mouse_security_check()
+            start_time = time.time()
+            while time.time() - start_time < 3:
+                if ImageUtils.confirm_location("one_tap_auto", tries=1):
+                    MouseUtils.click()
+                    Game._move_mouse_security_check()
+                    break
+        else:
+            Game.wait(3.0)
+
         return True
 
     @staticmethod
