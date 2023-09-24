@@ -1298,6 +1298,7 @@ class CombatMode:
                         CombatMode._wait_execute(list(command))
                     elif command == "exit":
                         # End Combat Mode by heading back to the Home screen without retreating.
+                        CombatMode._attack(command)
                         MessageLog.print_message("\n[COMBAT] Leaving this Raid without retreating.")
                         MessageLog.print_message("\n######################################################################")
                         MessageLog.print_message("######################################################################")
