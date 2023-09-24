@@ -345,7 +345,9 @@ class Game:
             curr_x, curr_y = pyautogui.position()
 
             # Depending on where the mouse is, move the mouse off the game window left or right.
-            if curr_x <= width / 2:
+            if curr_x == width - 100 or curr_x == 100:
+                pass
+            elif curr_x <= width / 2:
                 # This is the left half of the screen.
                 MouseUtils.move_to(width - 100, curr_y, custom_mouse_speed = Settings.custom_mouse_speed)
             else:
@@ -583,7 +585,10 @@ class Game:
             Game.wait(3.0)
             return False
 
-        Game.wait(3.0)
+        Game.wait(2)
+        if not Settings.combat_script or Settings.combat_script_name == "semi_auto.txt" or Settings.combat_script_name == "full_auto.txt":
+            MouseUtils.click()
+            Game._move_mouse_security_check()
         return True
 
     @staticmethod

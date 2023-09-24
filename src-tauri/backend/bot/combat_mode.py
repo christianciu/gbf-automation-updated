@@ -1207,9 +1207,10 @@ class CombatMode:
         # Save the position of the Attack button.
         CombatMode._attack_button_location = ImageUtils.find_button("attack", tries = 50, bypass_general_adjustment = True)
 
-        if CombatMode._attack_button_location is None:
-            MessageLog.print_message(f"\n[ERROR] Cannot find Attack button. Raid must have just ended.")
-            return False
+        # TODO: Add back this block if running into issues with Raid
+        # if Settings.farming_mode == "Raid" and CombatMode._attack_button_location is None:
+        #     MessageLog.print_message(f"\n[ERROR] Cannot find Attack button. Raid must have just ended.")
+        #     return False
 
         ######################################################################
         ######################################################################
