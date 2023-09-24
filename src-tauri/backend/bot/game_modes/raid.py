@@ -186,10 +186,6 @@ class Raid:
         """
         from bot.game import Game
 
-        # Current location should be at the Backup Requests screen with the 'Recent' and 'Finder' tabs.
-        # Make the Finder tab active.
-        Game.find_and_click_button("raid_tab_finder")
-
         # A list of available raids to join should have appeared. Join the first one found.
         tries = 100
         recovery_time = 5
@@ -226,19 +222,17 @@ class Raid:
         # Then navigate to the Quest screen.
         Game.find_and_click_button("raid_red")
 
-        Game.wait(3.0)
+        Game.wait(0.5)
 
-        # Check for the "You retreated from the raid battle" popup.
-        if ImageUtils.confirm_location("you_retreated_from_the_raid_battle", tries = 3):
-            Game.find_and_click_button("ok")
-
-        if ImageUtils.confirm_location("raid"):
-            # Check for any joined raids and if the max number of raids joined was reached, clear them.
-            Raid._check_for_joined_raids()
-            Raid._clear_joined_raids()
-
-            Raid._join_raid()
-        else:
+        max_attempts = 3
+        for attempt_num in range(max_attempts):
+            # Check for the "You retreated from the raid battle" popup.
+            if ImageUtils.confirm_location("raid"):
+                Raid._join_raid()
+                break
+            elif ImageUtils.confirm_location("you_retreated_from_the_raid_battle", tries=1):
+                Game.find_and_click_button("ok")
+        else:  # no break
             raise RaidException("Failed to reach the Backup Requests screen.")
 
     @staticmethod
