@@ -130,8 +130,6 @@ class Game:
             Game.find_and_click_button("close", suppress_error = True)
 
             if confirm_location_check:
-                Game.wait(2.0)
-
                 if ImageUtils.confirm_location("home", bypass_general_adjustment = True) is False:
                     Game.find_and_click_button("reload")
                     Game.wait(4.0)

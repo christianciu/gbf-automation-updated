@@ -192,7 +192,7 @@ class Raid:
 
         # A list of available raids to join should have appeared. Join the first one found.
         tries = 100
-        recovery_time = 15
+        recovery_time = 5
         while tries > 0:
             positions = ImageUtils.find_all("raid_time_remaining")
             if len(positions) > 0:
@@ -204,7 +204,7 @@ class Raid:
                 if tries <= 0:
                     raise RaidException(f"No raids have been found for a considerable amount of time for {Settings.mission_name}. Exiting now...")
 
-                sleep_time = random.randint(5, recovery_time)
+                sleep_time = random.randint(4, recovery_time)
                 MessageLog.print_message(f"[RAID] No raids found in the list. Waiting {sleep_time} seconds before refreshing the list. {tries} tries remaining.")
                 Game.wait(sleep_time)
 
