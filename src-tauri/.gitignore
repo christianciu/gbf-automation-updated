@@ -6,3 +6,7 @@
 /temp/
 
 Granblue Automation.exe*
+
+/backend/model/
+
+/results/

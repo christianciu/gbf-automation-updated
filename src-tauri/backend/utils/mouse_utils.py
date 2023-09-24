@@ -20,9 +20,9 @@ class MouseUtils:
 
     _hc = pyclick.HumanClicker()
     # The lower the more smooth, the higher the more accurate to the speed
-    mouse_smoothness = max(0.01, Settings.mouse_smoothness/100)
+    bezier_mouse_smoothness = max(0.01, Settings.mouse_smoothness / 100)
     # 1000 to 3000 is tested
-    mouse_speed = max(1000, 1000 * Settings.custom_mouse_speed)
+    bezier_mouse_speed = max(1000.0, 1000.0 * Settings.custom_mouse_speed)
 
     if Settings.enable_bezier_curve_mouse_movement is False:
         pyautogui.MINIMUM_DURATION = 0.1
@@ -42,22 +42,25 @@ class MouseUtils:
             None
         """
         if Settings.enable_bezier_curve_mouse_movement:
+            target_pos = (x, y)
+            current_pos = pyautogui.position()
 
-            target_pos = (x,y)
-            pos = pyautogui.position()
-            # estimate the mouse move distant with euclidean distant of 2 points
-            dist = [(a - b)**2 for a, b in zip(pos, target_pos)]
-            dist = math.sqrt(sum(dist))
-            speed = MouseUtils.mouse_speed-np.random.randint(0,300)
-            # calculate the duration of the mouse movement
-            dur = 0.1+dist/speed
-            target_point_cnt = int(dur/MouseUtils.mouse_smoothness)
+            # Estimate the mouse movement distance by calculating the Euclidean distance of the 2 points.
+            vectors = [(a - b) ** 2 for a, b in zip(current_pos, target_pos)]
+            dist = math.sqrt(sum(vectors))
+
+            # Further randomize the mouse speed.
+            new_mouse_speed = MouseUtils.bezier_mouse_speed - float(np.random.randint(0, 300))
+
+            # Calculate the duration of the mouse movement and the amount of points along the path that the mouse will take.
+            dur = 0.1 + dist / new_mouse_speed
+            target_point_cnt = int(dur / MouseUtils.bezier_mouse_smoothness)
 
             if Settings.debug_mode:
-                MessageLog.print_message(
-                f"[DEBUG] Duration: {dur}, Number of points: {target_point_cnt})")
+                MessageLog.print_message(f"[DEBUG] Duration: {dur}, Number of points: {target_point_cnt})")
 
-            curve = pyclick.HumanCurve(pos, target_pos, targetPoints=target_point_cnt)
+            # Generate the curve that the mouse will follow by hitting each point along its path.
+            curve = pyclick.HumanCurve(current_pos, target_pos, targetPoints = target_point_cnt)
 
             MouseUtils._hc.move((x, y), duration = dur, humanCurve = curve)
         else:
@@ -85,7 +88,7 @@ class MouseUtils:
         pyautogui.mouseUp()
 
     @staticmethod
-    def move_and_click_point(x: int, y: int, image_name: str, custom_mouse_speed: float = 0.0, mouse_clicks: int = 1, custom_wait: Optional[float]=None):
+    def move_and_click_point(x: int, y: int, image_name: str, custom_mouse_speed: float = 0.0, mouse_clicks: int = 1, custom_wait: Optional[float] = None):
         """Move the cursor to the specified point on the screen and clicks it.
 
         Args:
@@ -94,7 +97,7 @@ class MouseUtils:
             image_name (str): File name of the image in /images/buttons/ folder.
             custom_mouse_speed (float, optional): Time in seconds it takes for the mouse to move to the specified point. Defaults to 0.0.
             mouse_clicks (int, optional): Number of mouse clicks. Defaults to 1.
-            custom_wait (float, optioanl): Custom wait time, useful for action not related to network speed & screenshot
+            custom_wait (float, optional): Custom wait time, useful for action not related to network speed & screenshot. Defaults to None.
         Returns:
             None
         """
@@ -114,9 +117,9 @@ class MouseUtils:
 
         # This delay is necessary as ImageUtils will take the screenshot too fast and the bot will use the last frame before clicking to navigate.
         if custom_wait is not None:
-            sleep(max(0, custom_wait))
+            sleep(custom_wait)
             return
-                
+
         from bot.game import Game
         Game.wait(1)
 
@@ -132,15 +135,15 @@ class MouseUtils:
         Returns:
             (int, int): Tuple of the newly randomized location to click.
         """
-        from utils.image_utils import ImageUtils 
+        from utils.image_utils import ImageUtils
         # Get the width and height of the template image.
 
         if Settings.farming_mode.endswith("V2"):
             x_off, y_off, width, height = ImageUtils.get_clickable_area(image_name)
-            width = np.random.randint(0,width)
-            height = np.random.randint(0,height)
-            return x+x_off+width, y+y_off+height
-        
+            width = np.random.randint(0, width)
+            height = np.random.randint(0, height)
+            return x + x_off + width, y + y_off + height
+
         width, height = ImageUtils.get_button_dimensions(image_name)
 
         dimensions_x0 = x - (width // 2)
@@ -161,8 +164,6 @@ class MouseUtils:
                 break
 
         return new_x, new_y
-    
-
 
     @staticmethod
     def scroll_screen(x: int, y: int, scroll_clicks: int):
