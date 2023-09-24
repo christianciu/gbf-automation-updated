@@ -190,43 +190,6 @@ class Raid:
         # Make the Finder tab active.
         Game.find_and_click_button("raid_tab_finder")
 
-        # Go to the 'Set Filters' popup. Clear all selected filters.
-        Game.find_and_click_button("raid_set_filters")
-        while Game.find_and_click_button("raid_filter_clear"):
-            MessageLog.print_message("[RAID] Cleared a filter from the list.")
-            Game.wait(1.0)
-
-        # Get ready to make the user-selected raid active.
-        Game.find_and_click_button("raid_filter_1", x_offset = 100)
-        tab_pos, grid_pos, list_pos = Raid._list_of_raids[Settings.mission_name].split(",")
-
-        # Select the difficulty tab.
-        if int(tab_pos) == 1:
-            MessageLog.print_message("[RAID] Selecting Standard difficulty tab.")
-            Game.find_and_click_button("raid_difficulty_standard", suppress_error = True)
-        else:
-            MessageLog.print_message("[RAID] Selecting Impossible difficulty tab.")
-            Game.find_and_click_button("raid_difficulty_impossible", suppress_error = True)
-
-        # Select the grid item containing the list of raids that the user-selected raid is located in.
-        anchor_x_offset = 130
-        anchor_y_offset = 75
-        anchor_pos = ImageUtils.find_button("raid_select_difficulty")
-
-        for index, grid in enumerate(Raid._GRID_SECTIONS):
-            if int(grid_pos) in grid:
-                MouseUtils.move_and_click_point(anchor_pos[0] - 125 + anchor_x_offset * (int(grid_pos) - 1), anchor_pos[1] + 195 + anchor_y_offset * (index - 1), "template_raid_category")
-                break
-
-        # A list of raids is now shown. Now make that raid filter active and then close out the popup.
-        checkboxes = ImageUtils.find_all("raid_filter_checkbox")
-        MouseUtils.move_and_click_point(checkboxes[int(list_pos - 1)][0], checkboxes[int(list_pos - 1)][1], "raid_filter_checkbox")
-        Game.wait(0.25)
-        Game.find_and_click_button("ok")
-        Game.wait(0.50)
-        Game.find_and_click_button("close")
-        Game.wait(0.50)
-
         # A list of available raids to join should have appeared. Join the first one found.
         tries = 100
         recovery_time = 15
