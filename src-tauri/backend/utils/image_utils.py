@@ -751,9 +751,10 @@ class ImageUtils:
             if not os.path.exists(ImageUtils._current_dir + "/backend/model/"):
                 os.makedirs(ImageUtils._current_dir + "/backend/model/")
 
-            MessageLog.print_message(f"\n[INFO] Initializing EasyOCR reader. This may take a few seconds...")
-            ImageUtils._reader = easyocr.Reader(["en"], model_storage_directory = ImageUtils._current_dir + "/backend/model/", gpu = True)
-            MessageLog.print_message(f"[INFO] EasyOCR reader initialized.")
+            if not ImageUtils._reader:
+                MessageLog.print_message(f"\n[INFO] Initializing EasyOCR reader. This may take a few seconds...")
+                ImageUtils._reader = easyocr.Reader(["en"], model_storage_directory = ImageUtils._current_dir + "/backend/model/", gpu = True)
+                MessageLog.print_message(f"[INFO] EasyOCR reader initialized.")
         except UnicodeEncodeError:
             # Tauri spawns the Python process using encoding cp1252 and not utf-8. Need to do this hacky way to force stdout to be utf-8 to get through
             # EasyOCR initialization as it uses Unicode characters. This process is not needed after EasyOCR downloads the models to the /model/ folder.
