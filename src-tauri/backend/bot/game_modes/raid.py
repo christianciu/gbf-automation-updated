@@ -223,20 +223,13 @@ class Raid:
         Game.go_back_home(confirm_location_check = True)
 
         # Then navigate to the Quest screen.
-        Game.find_and_click_button("quest")
+        Game.find_and_click_button("raid_red")
 
         Game.wait(3.0)
 
         # Check for the "You retreated from the raid battle" popup.
         if ImageUtils.confirm_location("you_retreated_from_the_raid_battle", tries = 3):
             Game.find_and_click_button("ok")
-
-        # Check for any Pending Battles popup.
-        if Game.check_for_pending():
-            Game.find_and_click_button("quest")
-
-        # Now navigate to the Raid screen.
-        Game.find_and_click_button("raid")
 
         if ImageUtils.confirm_location("raid"):
             # Check for any joined raids and if the max number of raids joined was reached, clear them.
@@ -259,16 +252,10 @@ class Raid:
         """
         from bot.game import Game
 
-        # Start the navigation process.
-        if first_run:
-            Raid._navigate()
-        else:
-            # Check for Pending Battles and then perform navigation again.
-            Game.check_for_pending()
-            Raid._navigate()
+        Raid._navigate()
 
         # Check if the bot is at the Summon Selection screen.
-        if ImageUtils.confirm_location("select_a_summon", tries = 30):
+        if ImageUtils.confirm_location("select_a_summon", tries=30):
             summon_check = Game.select_summon(Settings.summon_list, Settings.summon_element_list)
 
             if summon_check:
@@ -282,6 +269,7 @@ class Raid:
                 else:
                     MessageLog.print_message("\n[RAID] Seems that the Raid ended before the bot was able to join. Now looking for another Raid to join...")
         else:
-            raise RaidException("Failed to arrive at the Summon Selection screen.")
+            if not Game.check_for_pending():
+                raise RaidException("Failed to arrive at the Summon Selection screen.")
 
         return None

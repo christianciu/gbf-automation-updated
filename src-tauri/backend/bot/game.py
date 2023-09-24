@@ -880,6 +880,7 @@ class Game:
             Game.wait(1)
 
         if ImageUtils.confirm_location("check_your_pending_battles", tries = 2, bypass_general_adjustment = True) or \
+                ImageUtils.confirm_location("check_your_pending_battles2", tries=2, bypass_general_adjustment=True) or \
                 ImageUtils.confirm_location("pending_battles", tries = 2, bypass_general_adjustment = True) or \
                 Game.find_and_click_button("quest_results_pending_battles", tries = 2, bypass_general_adjustment = True):
             MessageLog.print_message(f"[INFO] Found Pending Battles that need collecting from.")
