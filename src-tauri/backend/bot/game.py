@@ -356,11 +356,6 @@ class Game:
 
             MouseUtils.click()  # Clicking off-screen is human-like behavior
 
-            # Now wait for several seconds before continuing.
-            new_seconds = random.randrange(0, 2)
-            MessageLog.print_message(f"[INFO] Now waiting {new_seconds} seconds...")
-            Game.wait(new_seconds)
-            MessageLog.print_message("[INFO] Waiting complete. Now resuming bot operations...")
         return None
 
     @staticmethod

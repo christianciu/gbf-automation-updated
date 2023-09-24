@@ -227,7 +227,7 @@ class CombatMode:
         y = CombatMode._attack_button_location[1] + 123
 
         # Double-clicking the character portrait to avoid any non-invasive popups from other Raid participants.
-        MouseUtils.move_and_click_point(x, y, "template_character", mouse_clicks = 2)
+        MouseUtils.move_and_click_point(x, y, "template_character", mouse_clicks=2 if Settings.farming_mode == "Raid" else 1)
 
         return None
 
@@ -402,8 +402,9 @@ class CombatMode:
         Returns:
             None
         """
+        # TODO: Add this dialog check back if it causes issues
         # Clear any detected dialog popups that might obstruct the "Attack" button.
-        CombatMode._check_for_dialog()
+        # CombatMode._check_for_dialog()
 
         # Parse the Turn's number.
         CombatMode._command_turn_number = int(command.split(":")[0].split(" ")[1])
@@ -1235,7 +1236,8 @@ class CombatMode:
                     # Process all commands here that belong inside a Turn block.
 
                     # Check for exit conditions.
-                    CombatMode._check_for_battle_end()
+                    if CombatMode._turn_number > 1:
+                        CombatMode._check_for_battle_end()
 
                     # Determine which Character to take action.
                     if "character1." in command:
@@ -1331,6 +1333,7 @@ class CombatMode:
             ######################################################################
             # When the bot reaches here, all the commands in the combat script has been processed.
             MessageLog.print_message("\n[COMBAT] Bot has reached end of script. Automatically attacking until battle ends or Party wipes...")
+            CombatMode._check_for_battle_end()
 
             if manual_attack_and_reload is False:
                 # Attempt to activate Full Auto at the end of the combat script. If not, then attempt to activate Semi Auto.
