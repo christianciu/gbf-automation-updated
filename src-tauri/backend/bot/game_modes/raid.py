@@ -190,9 +190,9 @@ class Raid:
         tries = 100
         recovery_time = 5
         while tries > 0:
-            positions = ImageUtils.find_all("raid_time_remaining")
-            if len(positions) > 0:
-                MouseUtils.move_and_click_point(positions[0][0], positions[0][1], "raid_time_remaining")
+            position = ImageUtils.find("raid_time_remaining")
+            if position:
+                MouseUtils.move_and_click_point(position[0], position[1], "raid_time_remaining")
                 MessageLog.print_message("[RAID] Successfully joined a raid.")
                 break
             else:

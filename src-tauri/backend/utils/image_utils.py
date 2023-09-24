@@ -123,7 +123,7 @@ class ImageUtils:
 
     @staticmethod
     def _match(image_path: str, confidence: float = 0.8, \
-               use_single_scale: bool = False, is_summon: bool = False, is_sub: bool = False) -> bool:
+               use_single_scale: bool = False, is_summon: bool = False, is_sub: bool = False) -> Tuple[int, ...]:
         """Match the given template image against the source screenshot to find a match location.
 
         Args:
@@ -134,7 +134,7 @@ class ImageUtils:
             is_sub: if is searching on sub window.
 
         Returns:
-            (bool): True if the template was found inside the source image and False otherwise.
+            (Tuple[int, ...]): Tuple containing match location if the template was found inside the source image and None otherwise
         """
 
         match_check = False
@@ -229,10 +229,10 @@ class ImageUtils:
                     if Settings.debug_mode:
                         MessageLog.print_message(f"[DEBUG] Match found with {max_val:.4f} >= {confidence:.2f} at Point {ImageUtils._match_location} using scale: {new_scale:.2f}")
 
-                return True
+                return tuple(temp_location)
 
         del scales
-        return False
+        return None
 
     @staticmethod
     def _match_all(image_path: str, confidence: float = 0.8, use_single_scale: bool = False) -> List[Tuple[int, ...]]:
@@ -492,7 +492,7 @@ class ImageUtils:
 
         while new_tries > 0:
             result_flag: bool = ImageUtils._match(f"{ImageUtils._current_dir}/images/buttons/{image_name.lower()}.jpg", confidence = custom_confidence,
-                                                  use_single_scale = Settings.enable_test_for_home_screen, is_sub = is_sub)
+                                                  use_single_scale = Settings.enable_test_for_home_screen, is_sub = is_sub) is not None
 
             if result_flag is False:
                 if test_mode:
@@ -547,7 +547,7 @@ class ImageUtils:
             new_tries = Settings.adjust_support_summon_selection_screen
 
         while new_tries > 0:
-            result_flag: bool = ImageUtils._match(f"{ImageUtils._current_dir}/images/headers/{image_name.lower()}_header.jpg", custom_confidence)
+            result_flag: bool = ImageUtils._match(f"{ImageUtils._current_dir}/images/headers/{image_name.lower()}_header.jpg", custom_confidence) is not None
 
             if result_flag is False:
                 new_tries -= 1
@@ -613,7 +613,7 @@ class ImageUtils:
                             raise Exception(f"Unable to switch summon element categories from {last_summon_element.upper()} to {current_summon_element.upper()}.")
                         last_summon_element = current_summon_element
 
-                result_flag: bool = ImageUtils._match(f"{ImageUtils._current_dir}/images/summons/{summon_list[summon_index]}.jpg", custom_confidence, is_summon = True)
+                result_flag: bool = ImageUtils._match(f"{ImageUtils._current_dir}/images/summons/{summon_list[summon_index]}.jpg", custom_confidence, is_summon = True) is not None
 
                 if result_flag:
                     if Settings.debug_mode:
@@ -672,6 +672,26 @@ class ImageUtils:
             from utils.mouse_utils import MouseUtils
             MouseUtils.scroll_screen(home_button[0], home_button[1] - 50, -700)
             Game.wait(1.0)
+
+    @staticmethod
+    def find(image_name: str, is_item: bool = False, custom_confidence: float = Settings.confidence_all) \
+            -> Tuple[int, ...]:
+        """Find the specified image file by locating one occurrence on the screen.
+
+        Args:
+            image_name (str): Name of the image file in the /images/buttons folder.
+            is_item (bool, optional): Determines whether to search for the image file in the /images/buttons/ or /images/items/ folder. Defaults to False.
+            custom_confidence (float, optional): Accuracy threshold for matching. Defaults to 0.8.
+
+        Returns:
+            (Tuple[int, ...]): Occurrence found on the screen. If no occurrence was found, return None
+        """
+        if is_item:
+            folder_name = "items"
+        else:
+            folder_name = "buttons"
+
+        return ImageUtils._match(f"{ImageUtils._current_dir}/images/{folder_name}/{image_name}.jpg", custom_confidence)
 
     @staticmethod
     def find_all(image_name: str, is_item: bool = False, custom_confidence: float = Settings.confidence_all, hide_info: bool = False) -> List[Tuple[int, ...]]:
@@ -858,7 +878,7 @@ class ImageUtils:
         MessageLog.print_message(f"\n[INFO] Now waiting for {image_name.upper()} to vanish from screen...")
 
         for _ in range(timeout):
-            if ImageUtils._match(f"{ImageUtils._current_dir}/images/buttons/{image_name.lower()}.jpg") is False:
+            if ImageUtils._match(f"{ImageUtils._current_dir}/images/buttons/{image_name.lower()}.jpg") is not None:
                 MessageLog.print_message(f"[SUCCESS] Image successfully vanished from screen...")
                 return True
 
