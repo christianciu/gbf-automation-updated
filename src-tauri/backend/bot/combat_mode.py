@@ -55,8 +55,8 @@ class CombatMode:
         if Settings.debug_mode:
             MessageLog.print_message(f"\n[DEBUG] Checking to see if the Party wiped...")
 
-        party_wipe_indicator = ImageUtils.find_button("party_wipe_indicator", tries = 3, suppress_error = True)
-        if party_wipe_indicator is not None or ImageUtils.confirm_location("salute_participants", tries = 3, suppress_error = True):
+        party_wipe_indicator = ImageUtils.find_button("party_wipe_indicator", tries = 1, suppress_error = True)
+        if party_wipe_indicator is not None or ImageUtils.confirm_location("salute_participants", tries = 1, suppress_error = True):
             if (Settings.farming_mode != "Raid" and Settings.farming_mode != "Dread Barrage") and ImageUtils.confirm_location("continue"):
                 # Click on the blue indicator to get rid of the overlay.
                 if party_wipe_indicator is not None:
@@ -103,9 +103,9 @@ class CombatMode:
         Returns:
             None
         """
-        dialog_location = ImageUtils.find_button("dialog_lyria", tries = 2, suppress_error = True, bypass_general_adjustment = True)
+        dialog_location = ImageUtils.find_button("dialog_lyria", tries = 1, suppress_error = True, bypass_general_adjustment = True)
         if dialog_location is None:
-            dialog_location = ImageUtils.find_button("dialog_vyrn", tries = 2, suppress_error = True, bypass_general_adjustment = True)
+            dialog_location = ImageUtils.find_button("dialog_vyrn", tries = 1, suppress_error = True, bypass_general_adjustment = True)
 
         if dialog_location is not None:
             if Settings.use_first_notch is False:
@@ -252,7 +252,7 @@ class CombatMode:
                 if Settings.enable_combat_mode_adjustment:
                     Game.wait(Settings.adjust_waiting_for_reload)
                 else:
-                    Game.wait(3.0)
+                    Game.wait(1.5)
 
                 return True
 
@@ -315,7 +315,7 @@ class CombatMode:
         MessageLog.print_message(f"[COMBAT] Turn {CombatMode._turn_number} has ended.")
 
         if Game.find_and_click_button("next", tries = 3, suppress_error = True):
-            Game.wait(3)
+            Game.wait(2.5)
 
         CombatMode._turn_number += 1
 
@@ -336,7 +336,7 @@ class CombatMode:
         else:
             tries = 100
 
-        while tries > 0 and not CombatMode._retreat_check and ImageUtils.find_button("attack", tries = 1, suppress_error = True) is None and \
+        while tries > 0 and not CombatMode._retreat_check and ImageUtils.find_button("attack", suppress_error = True) is None and \
                 ImageUtils.find_button("next", tries = 1, suppress_error = True) is None:
             CombatMode._check_for_dialog()
 
@@ -433,7 +433,7 @@ class CombatMode:
 
         if CombatMode._full_auto or CombatMode._semi_auto:
             while ImageUtils.find_button("attack") is not None:
-                Game.wait(1.0)
+                Game.wait(0.25)
         else:
             Game.find_and_click_button("attack", tries = 10)
 
@@ -448,7 +448,7 @@ class CombatMode:
         CombatMode._check_for_battle_end()
 
         if Game.find_and_click_button("next", tries = 3, suppress_error = True):
-            Game.wait(3)
+            Game.wait(2.5)
 
         return None
 
@@ -1040,11 +1040,11 @@ class CombatMode:
         if Game.find_and_click_button("attack"):
             if ImageUtils.wait_vanish("combat_cancel", timeout = 10):
                 Game.find_and_click_button("reload")
-                Game.wait(3.0)
+                Game.wait(2)
             else:
                 # If the "Cancel" button fails to disappear after 10 tries, reload anyways.
                 Game.find_and_click_button("reload")
-                Game.wait(3.0)
+                Game.wait(2)
 
         Game._move_mouse_security_check()  # Moving mouse after clicking reload is human-like behavior
 
@@ -1087,14 +1087,14 @@ class CombatMode:
             CombatMode._check_for_battle_end()
 
             if Game.find_and_click_button("next", tries = 1, suppress_error = True):
-                Game.wait(3)
+                Game.wait(2)
 
             CombatMode._check_for_wipe()
 
             if CombatMode._check_raid():
                 # Click Next if it is available and enable automation again if combat continues.
                 if Game.find_and_click_button("next", tries = 1, suppress_error = True):
-                    Game.wait(3.0)
+                    Game.wait(2)
 
                     # Check for exit conditions and restart auto.
                     if CombatMode._check_for_battle_end() == "Nothing":
@@ -1139,7 +1139,7 @@ class CombatMode:
             CombatMode._check_for_battle_end()
 
             if Game.find_and_click_button("next", tries = 1, suppress_error = True):
-                Game.wait(3)
+                Game.wait(2.5)
 
                 # Check for exit conditions.
                 CombatMode._check_for_battle_end()
@@ -1343,7 +1343,7 @@ class CombatMode:
 
                 # Counteract slower instances when the battle finished right when the bot finished executing the script.
                 if Game.find_and_click_button("next", tries = 1, suppress_error = True):
-                    Game.wait(3)
+                    Game.wait(2.5)
                     CombatMode._check_for_battle_end()
 
                 # Main workflow loop for both Semi Auto and Full Auto. The bot will progress the Quest/Raid until it ends or the Party wipes.

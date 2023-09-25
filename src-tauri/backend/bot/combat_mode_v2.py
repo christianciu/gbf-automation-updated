@@ -233,7 +233,7 @@ class CombatModeV2:
         else:
             Game.find_and_click_button("reload")
         
-        Game.wait(3.0)
+        Game.wait(2)
 
     @staticmethod
     def _attack():

@@ -388,7 +388,7 @@ class Game:
             MessageLog.print_message("[INFO] Bypassing procedure to reset Summons. Reloading page and selecting the very first one now...")
 
             Game.find_and_click_button("reload")
-            Game.wait(3.0)
+            Game.wait(2)
 
             # Now select the first Summon.
             choose_a_summon_location = ImageUtils.find_button("choose_a_summon")
