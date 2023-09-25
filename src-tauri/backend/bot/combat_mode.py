@@ -818,13 +818,16 @@ class CombatMode:
         Returns:
             (bool): Return True if the Turn will end due to a chained "attack" command. False otherwise.
         """
+        _navigated_to_summons = False
         for summon_index in range(1, 7):
             if f"summon({summon_index})" in command:
+                MessageLog.print_message(f"[COMBAT] Invoking Summon #{summon_index}.")
                 from bot.game import Game
 
-                # Click the "Summon" button to bring up the available Summons.
-                MessageLog.print_message(f"[COMBAT] Invoking Summon #{summon_index}.")
-                Game.find_and_click_button("summon")
+                if not _navigated_to_summons:
+                    # Click the "Summon" button to bring up the available Summons.
+                    Game.find_and_click_button("summon")
+                    _navigated_to_summons = True
 
                 if Settings.use_first_notch is False:
                     x_offset = 320
@@ -859,8 +862,8 @@ class CombatMode:
                         MessageLog.print_message(f"[COMBAT] Summon #{summon_index} cannot be invoked due to current restrictions.")
                         Game.find_and_click_button("cancel")
 
-                # Click the "Back" button to return.
-                Game.find_and_click_button("back")
+        # Click the "Back" button to return.
+        Game.find_and_click_button("back")
 
         if "wait" in command:
             split_command = command.split(".")
