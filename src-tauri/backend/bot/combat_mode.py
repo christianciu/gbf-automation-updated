@@ -954,11 +954,9 @@ class CombatMode:
         Game._move_mouse_security_check()  # Moving mouse after enabling auto mode is human-like behavior
         if reload:
             if ImageUtils.wait_vanish("attack", timeout=45):
-                Game.wait(0.75)
                 Game.find_and_click_button("reload")
                 Game._move_mouse_security_check()  # Moving mouse after refreshing
-                Game.wait(1)
-                CombatMode._wait_for_attack()
+                Game.wait(2)
                 CombatMode._turn_number += 1
 
         return None
