@@ -753,12 +753,12 @@ class CombatMode:
                         x_offset = 225
                         x_inc = 95
                         y_offset = 55
-                        y_inc = 70
+                        y_inc = 140
                     else:
                         x_offset = 150
                         x_inc = 60
                         y_offset = 35
-                        y_inc = 110
+                        y_inc = 220
 
                     if target == "target(1)":
                         x = CombatMode._attack_button_location[0] - x_offset + (x_inc * 0)
