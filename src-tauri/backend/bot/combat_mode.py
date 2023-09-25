@@ -803,7 +803,8 @@ class CombatMode:
                 #     Game.find_and_click_button("cancel")
 
         # Once all the commands for the selected Character have been processed, click the "Back" button to return.
-        Game.find_and_click_button("back")
+        if not Game.find_and_click_button("back"):
+            Game.find_and_click_button("cancel")
 
         return False
 
