@@ -933,7 +933,7 @@ class CombatMode:
         return None
 
     @staticmethod
-    def _enable_full_auto():
+    def _enable_full_auto(reload: bool = False):
         """Enable Full Auto and if it fails, try to enable Semi Auto.
 
         Returns:
@@ -952,6 +952,14 @@ class CombatMode:
             MessageLog.print_message("[COMBAT] Full Auto is now enabled.")
 
         Game._move_mouse_security_check()  # Moving mouse after enabling auto mode is human-like behavior
+        if reload:
+            if ImageUtils.wait_vanish("attack", timeout=45):
+                Game.wait(0.75)
+                Game.find_and_click_button("reload")
+                Game._move_mouse_security_check()  # Moving mouse after refreshing
+                Game.wait(1)
+                CombatMode._wait_for_attack()
+                CombatMode._turn_number += 1
 
         return None
 
@@ -1278,8 +1286,8 @@ class CombatMode:
                             skip_end = True
                     elif command == "enablesemiauto":
                         CombatMode._enable_semi_auto()
-                    elif command == "enablefullauto":
-                        CombatMode._enable_full_auto()
+                    elif command.startswith("enablefullauto"):
+                        CombatMode._enable_full_auto(reload="reload" in command)
                     elif "targetenemy" in command:
                         # Select enemy target.
                         CombatMode._select_enemy_target(command)

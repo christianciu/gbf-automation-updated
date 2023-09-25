@@ -3,6 +3,7 @@ import os
 import sys
 import codecs
 import threading
+import time
 from datetime import date
 from typing import List, Tuple, Optional
 
@@ -869,7 +870,7 @@ class ImageUtils:
 
         Args:
             image_name (str): Name of the image file in the /images/buttons/ folder.
-            timeout (int, optional): Timeout in tries. Defaults to 10.
+            timeout (int, optional): Timeout in seconds. Defaults to 10.
             suppress_error (bool, optional): Suppresses template matching error if True. Defaults to False.
 
         Returns:
@@ -877,8 +878,9 @@ class ImageUtils:
         """
         MessageLog.print_message(f"\n[INFO] Now waiting for {image_name.upper()} to vanish from screen...")
 
-        for _ in range(timeout):
-            if ImageUtils._match(f"{ImageUtils._current_dir}/images/buttons/{image_name.lower()}.jpg") is not None:
+        start_time = time.time()
+        while time.time() - start_time < timeout:
+            if not ImageUtils._match(f"{ImageUtils._current_dir}/images/buttons/{image_name.lower()}.jpg"):
                 MessageLog.print_message(f"[SUCCESS] Image successfully vanished from screen...")
                 return True
 
