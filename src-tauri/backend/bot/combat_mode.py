@@ -529,8 +529,9 @@ class CombatMode:
         else:
             Game.find_and_click_button(formatted_command)
 
+        watch_vanish = "usefullelixir" if command != "usefullelixir" else "usegreenpotion"
         # After the initial popup vanishes to reveal a new popup, either select a Character target or confirm the item usage.
-        if ImageUtils.wait_vanish("tap_the_item_to_use", timeout = 5):
+        if ImageUtils.wait_vanish(watch_vanish, timeout = 5):
             if command == "usegreenpotion":
                 MessageLog.print_message(f"\n[COMBAT] Using Green Potion on Character {target}...")
                 CombatMode._select_character(target)
