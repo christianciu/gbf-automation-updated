@@ -310,8 +310,6 @@ class CombatMode:
             elif reload_check and CombatMode._semi_auto:
                 CombatMode._enable_semi_auto()
 
-        CombatMode._wait_for_attack()
-
         MessageLog.print_message(f"[COMBAT] Turn {CombatMode._turn_number} has ended.")
 
         if Game.find_and_click_button("next", tries = 3, suppress_error = True):
@@ -331,6 +329,9 @@ class CombatMode:
             (bool): True if Attack ended into the next Turn. False if Attack ended but combat also ended as well.
         """
         MessageLog.print_message("[COMBAT] Now waiting for attack to end...")
+        if ImageUtils.wait_appear("attack", timeout=5, suppress_error=True):
+            return True
+
         if Settings.enable_combat_mode_adjustment:
             tries = Settings.adjust_waiting_for_attack
         else:
@@ -954,13 +955,17 @@ class CombatMode:
         else:
             MessageLog.print_message("[COMBAT] Full Auto is now enabled.")
 
-        Game._move_mouse_security_check()  # Moving mouse after enabling auto mode is human-like behavior
         if reload:
-            if ImageUtils.wait_vanish("attack", timeout=45):
+            attack_vanished = ImageUtils.wait_vanish("attack", timeout=1)
+            if not attack_vanished:
+                Game._move_mouse_security_check()  # Moving mouse after enabling auto mode is human-like behavior
+
+            if attack_vanished or ImageUtils.wait_vanish("attack", timeout=45):
                 Game.find_and_click_button("reload")
                 Game._move_mouse_security_check()  # Moving mouse after refreshing
-                Game.wait(2)
                 CombatMode._turn_number += 1
+        else:
+            Game._move_mouse_security_check()  # Moving mouse after enabling auto mode is human-like behavior
 
         return None
 
@@ -1026,7 +1031,6 @@ class CombatMode:
 
         if Game.find_and_click_button("home_back"):
             MessageLog.print_message("[COMBAT] Tapped the Back button.")
-            CombatMode._wait_for_attack()
 
             if increment_turn:
                 # Advance the Turn number by 1.
@@ -1071,7 +1075,6 @@ class CombatMode:
         CombatMode._end_turn()
 
         CombatMode._reload_for_attack()
-        CombatMode._wait_for_attack()
 
         MessageLog.print_message(f"[COMBAT] Turn {CombatMode._turn_number} has ended.")
 
@@ -1115,7 +1118,6 @@ class CombatMode:
                     Game.wait(1.0)
 
                     CombatMode._reload_for_attack(override = True)
-                    CombatMode._wait_for_attack()
 
                     # Check for exit conditions and restart auto.
                     if CombatMode._check_for_battle_end() == "Nothing":
@@ -1157,7 +1159,6 @@ class CombatMode:
 
             Game.find_and_click_button("attack", tries = 10)
             CombatMode._reload_for_attack()
-            CombatMode._wait_for_attack()
 
         return None
 
@@ -1247,8 +1248,10 @@ class CombatMode:
                     # Process all commands here that belong inside a Turn block.
 
                     # Check for exit conditions.
-                    if CombatMode._turn_number > 1:
+                    if not ImageUtils.wait_appear("menu", timeout=5):
                         CombatMode._check_for_battle_end()
+
+                    CombatMode._wait_for_attack()
 
                     # Determine which Character to take action.
                     if "character1." in command:

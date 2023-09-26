@@ -865,6 +865,31 @@ class ImageUtils:
         return total_amount_farmed
 
     @staticmethod
+    def wait_appear(image_name: str, timeout: int = 10, suppress_error: bool = False) -> bool:
+        """Check if the provided image appears on the screen after a certain amount of time.
+
+        Args:
+            image_name (str): Name of the image file in the /images/buttons/ folder.
+            timeout (int, optional): Timeout in seconds. Defaults to 10.
+            suppress_error (bool, optional): Suppresses template matching error if True. Defaults to False.
+
+        Returns:
+            (bool): True if the image appears the screen within the allotted time or False if timeout was reached.
+        """
+        MessageLog.print_message(f"\n[INFO] Now waiting for {image_name.upper()} to appear on screen...")
+
+        start_time = time.time()
+        while time.time() - start_time < timeout:
+            if ImageUtils._match(f"{ImageUtils._current_dir}/images/buttons/{image_name.lower()}.jpg"):
+                MessageLog.print_message(f"[SUCCESS] Image successfully appeared on screen...")
+                return True
+
+        if suppress_error is False:
+            MessageLog.print_message(f"[WARNING] Image did not appear on screen...")
+
+        return False
+
+    @staticmethod
     def wait_vanish(image_name: str, timeout: int = 10, suppress_error: bool = False) -> bool:
         """Check if the provided image vanishes from the screen after a certain amount of time.
 
