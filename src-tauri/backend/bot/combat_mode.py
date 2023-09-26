@@ -827,7 +827,9 @@ class CombatMode:
 
                 if not _navigated_to_summons:
                     # Click the "Summon" button to bring up the available Summons.
-                    Game.find_and_click_button("summon")
+                    if not Game.find_and_click_button("summon"):
+                        MessageLog.print_message(f"[COMBAT] Summon #{summon_index} cannot be invoked due to current restrictions.")
+                        break
                     _navigated_to_summons = True
 
                 if Settings.use_first_notch is False:
