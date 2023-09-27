@@ -959,6 +959,10 @@ class CombatMode:
                 Game.find_and_click_button("reload")
                 Game._move_mouse_security_check()  # Moving mouse after refreshing is human-like behavior
                 CombatMode._turn_number += 1
+            else:
+                CombatMode._check_for_wipe()
+                CombatMode._check_for_battle_end()
+
         else:
             Game._move_mouse_security_check()  # Moving mouse after enabling auto mode is human-like behavior
 
@@ -1092,6 +1096,7 @@ class CombatMode:
         from bot.game import Game
 
         while not CombatMode._retreat_check and (CombatMode._full_auto or CombatMode._semi_auto):
+            ImageUtils.wait_appear("menu", timeout=5)
             CombatMode._check_for_battle_end()
             CombatMode._wait_for_attack()
 
