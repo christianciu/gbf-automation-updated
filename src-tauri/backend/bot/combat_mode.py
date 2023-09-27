@@ -232,27 +232,20 @@ class CombatMode:
         return None
 
     @staticmethod
-    def _reload_for_attack(override: bool = False) -> bool:
+    def _reload_for_attack() -> bool:
         """Determine whether or not to reload after an Attack.
-
-        Args:
-            override (bool): Override the set checks and reload anyways. Defaults to false.
 
         Returns:
             (bool): True if the bot reloaded the page. False otherwise.
         """
         # If the "Cancel" button vanishes, that means the attack is in-progress. Now reload the page and wait for either the attack to finish or Battle ended.
-        if Settings.enable_refresh_during_combat and (CombatMode._check_raid() or override or (Settings.farming_mode == "Generic" and Settings.enable_force_reload)):
+        if Settings.enable_refresh_during_combat and (CombatMode._check_raid() or (Settings.farming_mode == "Generic" and Settings.enable_force_reload)):
             from bot.game import Game
 
             if CombatMode._check_for_battle_end() == "Nothing":
                 MessageLog.print_message("[COMBAT] Reloading now.")
                 Game.find_and_click_button("reload")
-
-                if Settings.enable_combat_mode_adjustment:
-                    Game.wait(Settings.adjust_waiting_for_reload)
-                else:
-                    Game.wait(1.5)
+                Game._move_mouse_security_check()  # Moving mouse after refreshing is human-like behavior
 
                 return True
 
@@ -948,7 +941,7 @@ class CombatMode:
         from bot.game import Game
 
         MessageLog.print_message("[COMBAT] Bot will now attempt to enable Full Auto...")
-        CombatMode._full_auto = Game.find_and_click_button("full_auto") or (ImageUtils.find_button("full_auto_enabled") is not None)
+        CombatMode._full_auto = Game.find_and_click_button("full_auto", suppress_error=True) or (ImageUtils.find_button("full_auto_enabled") is not None)
 
         # If the bot failed to find and click the "Full Auto" button, fallback to the "Semi Auto" button.
         if not CombatMode._full_auto:
@@ -964,7 +957,7 @@ class CombatMode:
 
             if attack_vanished or ImageUtils.wait_vanish("attack", timeout=45):
                 Game.find_and_click_button("reload")
-                Game._move_mouse_security_check()  # Moving mouse after refreshing
+                Game._move_mouse_security_check()  # Moving mouse after refreshing is human-like behavior
                 CombatMode._turn_number += 1
         else:
             Game._move_mouse_security_check()  # Moving mouse after enabling auto mode is human-like behavior
@@ -1099,44 +1092,13 @@ class CombatMode:
         from bot.game import Game
 
         while not CombatMode._retreat_check and (CombatMode._full_auto or CombatMode._semi_auto):
-            # Check for exit conditions.
             CombatMode._check_for_battle_end()
+            CombatMode._wait_for_attack()
 
-            if Game.find_and_click_button("next", tries = 1, suppress_error = True):
-                Game.wait(2)
-
-            CombatMode._check_for_wipe()
-
-            if CombatMode._check_raid():
-                # Click Next if it is available and enable automation again if combat continues.
-                if Game.find_and_click_button("next", tries = 1, suppress_error = True):
-                    Game.wait(2)
-
-                    # Check for exit conditions and restart auto.
-                    if CombatMode._check_for_battle_end() == "Nothing":
-                        CombatMode._enable_auto()
-                elif ImageUtils.find_button("attack", tries = 1, suppress_error = True) is None and ImageUtils.find_button("next", tries = 1, suppress_error = True) is None and \
-                        CombatMode._check_for_battle_end() == "Nothing":
-                    Game.wait(1.0)
-
-                    CombatMode._reload_for_attack(override = True)
-
-                    # Check for exit conditions and restart auto.
-                    if CombatMode._check_for_battle_end() == "Nothing":
-                        if Settings.debug_mode:
-                            MessageLog.print_message("[DEBUG] Clicked the Next button to move to the next wave. Attempting to restart Full/Semi Auto...")
-
-                        CombatMode._enable_auto()
-            elif ImageUtils.find_button("attack", tries = 1, suppress_error = True) is None and ImageUtils.find_button("next", tries = 1, suppress_error = True) is None:
-                if Settings.debug_mode:
-                    MessageLog.print_message("[DEBUG] Attack and Next buttons have vanished. Determining if bot should reload...")
-
-                if CombatMode._reload_for_attack():
-                    # Enable Full/Semi Auto again if the bot reloaded.
-                    if CombatMode._full_auto:
-                        CombatMode._enable_full_auto()
-                    elif CombatMode._semi_auto:
-                        CombatMode._enable_semi_auto()
+            if CombatMode._full_auto:
+                CombatMode._enable_full_auto(reload=Settings.enable_refresh_during_combat)
+            elif CombatMode._semi_auto:
+                CombatMode._enable_semi_auto()
 
         return None
 
