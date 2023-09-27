@@ -940,29 +940,30 @@ class CombatMode:
         """
         from bot.game import Game
 
-        MessageLog.print_message("[COMBAT] Bot will now attempt to enable Full Auto...")
-        CombatMode._full_auto = Game.find_and_click_button("full_auto", suppress_error=True) or (ImageUtils.find_button("full_auto_enabled") is not None)
+        if not Game.find_and_click_button("full_auto", suppress_error=True):
+            CombatMode._full_auto = ImageUtils.find_button("full_auto_enabled") is not None
+        else:
+            MessageLog.print_message("[COMBAT] Bot enabled Full Auto.")
+            CombatMode._full_auto = True
 
         # If the bot failed to find and click the "Full Auto" button, fallback to the "Semi Auto" button.
         if not CombatMode._full_auto:
             MessageLog.print_message("[COMBAT] Bot failed to find the \"Full Auto\" button. Falling back to Semi Auto.")
             CombatMode._enable_semi_auto()
-        else:
-            MessageLog.print_message("[COMBAT] Full Auto is now enabled.")
 
         if reload:
-            attack_vanished = ImageUtils.wait_vanish("attack", timeout=1)
+            attack_vanished = ImageUtils.wait_vanish("attack", timeout=1, suppress_error=True)
             if not attack_vanished:
                 Game._move_mouse_security_check()  # Moving mouse after enabling auto mode is human-like behavior
 
             if attack_vanished or ImageUtils.wait_vanish("attack", timeout=45):
+                MessageLog.print_message("[COMBAT] Reloading page since attack registered...")
                 Game.find_and_click_button("reload")
                 Game._move_mouse_security_check()  # Moving mouse after refreshing is human-like behavior
                 CombatMode._turn_number += 1
             else:
                 CombatMode._check_for_wipe()
                 CombatMode._check_for_battle_end()
-
         else:
             Game._move_mouse_security_check()  # Moving mouse after enabling auto mode is human-like behavior
 
