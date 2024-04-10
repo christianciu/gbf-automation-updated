@@ -12,7 +12,7 @@ interface CustomNumberInputProps {
     disabled?: boolean
 }
 
-const CustomNumberInput = ({ label, value, onChange, description = "", placeholder = "", min = 1, max = 100, step = 1, disabled = false }: CustomNumberInputProps) => {
+const CustomNumberInput = ({ label, value, onChange, description = "", placeholder = "", min = 1, max = 9999, step = 1, disabled = false }: CustomNumberInputProps) => {
     let tempStep = Number(step)
     if (tempStep !== Math.floor(tempStep)) {
         return <NumberInput label={label} value={value} onChange={onChange} description={description} placeholder={placeholder} min={min} max={max} step={step} precision={2} disabled={disabled} />

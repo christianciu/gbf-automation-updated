@@ -9,10 +9,10 @@
         "summons": ["Yggdrasil Omega", "Godsworn Alexiel", "Titan", "Gorilla"]
     },
     "Wind": {
-        "summons": ["Tiamat Omega", "Grimnir", "Zephyrus"]
+        "summons": ["Tiamat Omega TC", "Tiamat Omega", "Grimnir", "Zephyrus"]
     },
     "Light": {
-        "summons": ["Luminiera Omega", "Lucifer", "Zeus", "Thor"]
+        "summons": ["Luminiera Omega TC", "Luminiera Omega", "Lucifer", "Zeus", "Thor"]
     },
     "Dark": {
         "summons": ["Celeste Omega", "Bahamut", "Hades", "Belial"]
