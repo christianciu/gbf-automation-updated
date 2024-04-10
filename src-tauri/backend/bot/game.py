@@ -909,9 +909,9 @@ class Game:
                         # Close the Skyscope mission popup.
                         Game.check_for_skyscope()
                         break
-            else:
-                MessageLog.print_message(f"[ERROR] Couldn't clear any pending battles.")
-                raise Exception("Could not clear any pending battles. Check to see if you are joined in the maximum number of raids. If you are using raid_one_punch, consider switching off of it for this raid.")
+            # else:
+            #     MessageLog.print_message(f"[ERROR] Couldn't clear any pending battles.")
+            #     raise Exception("Could not clear any pending battles. Check to see if you are joined in the maximum number of raids. If you are using raid_one_punch, consider switching off of it for this raid.")
 
             MessageLog.print_message(f"[INFO] Pending battles have been cleared.")
             return True

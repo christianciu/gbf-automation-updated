@@ -220,20 +220,46 @@ class Raid:
         Game.go_back_home(confirm_location_check = True)
 
         # Then navigate to the Quest screen.
-        Game.find_and_click_button("raid_red")
+        if Game.find_and_click_button("raid_red"):
+            Game.wait(0.5)
 
-        Game.wait(0.5)
+            max_attempts = 3
+            for attempt_num in range(max_attempts):
+                # Check for the "You retreated from the raid battle" popup.
+                if ImageUtils.confirm_location("raid"):
+                    Raid._join_raid()
+                    break
+                elif ImageUtils.confirm_location("you_retreated_from_the_raid_battle", tries=1):
+                    Game.find_and_click_button("ok")
+            else:  # no break
+                Raid.start(False)
+                # raise RaidException("Failed to reach the Backup Requests screen.")
+        
+        else:
+            Game.find_and_click_button("quest")
 
-        max_attempts = 3
-        for attempt_num in range(max_attempts):
+            Game.wait(0.5)
+
             # Check for the "You retreated from the raid battle" popup.
-            if ImageUtils.confirm_location("raid"):
-                Raid._join_raid()
-                break
-            elif ImageUtils.confirm_location("you_retreated_from_the_raid_battle", tries=1):
+            if ImageUtils.confirm_location("you_retreated_from_the_raid_battle", tries = 3):
                 Game.find_and_click_button("ok")
-        else:  # no break
-            raise RaidException("Failed to reach the Backup Requests screen.")
+
+            # Check for any Pending Battles popup.
+            if Game.check_for_pending():
+                Game.find_and_click_button("quest")
+
+            # Now navigate to the Raid screen.
+            Game.find_and_click_button("raid")
+
+            if ImageUtils.confirm_location("raid"):
+                # Check for any joined raids and if the max number of raids joined was reached, clear them.
+                Raid._check_for_joined_raids()
+                Raid._clear_joined_raids()
+
+                Raid._join_raid()
+            else:
+                Raid.start(False)
+                # raise RaidException("Failed to reach the Backup Requests screen.")
 
     @staticmethod
     def start(first_run: bool):

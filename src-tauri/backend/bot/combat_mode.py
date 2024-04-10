@@ -804,6 +804,7 @@ class CombatMode:
 
     @staticmethod
     def _use_summon(command: str):
+        from bot.game import Game
         """Activate the specified Summon.
 
         Args:
