@@ -203,7 +203,7 @@ class Raid:
                 sleep_time = random.randint(4, recovery_time)
                 MessageLog.print_message(f"[RAID] No raids found in the list. Waiting {sleep_time} seconds before refreshing the list. {tries} tries remaining.")
                 Game.wait(sleep_time)
-                Game.find_and_click_button("refresh_raid")
+                Game.find_and_click_button("reload")
 
     @staticmethod
     def _navigate():
@@ -297,6 +297,8 @@ class Raid:
                 if Game.check_for_pending():
                     break
         else:  # no break
-            raise RaidException("Failed to arrive at the Summon Selection screen.")
+            Game.find_and_click_button("reload")
+            Raid.start(False)
+            # raise RaidException("Failed to arrive at the Summon Selection screen.")
 
         return None
