@@ -1,0 +1,18 @@
+[
+    {
+        "comment": "Xuan Wu",
+        "url": "https://game.granbluefantasy.jp/#quest/supporter/711041/1",
+        "summons": ["kaguya"],
+        "elements": ["misc"],
+        "repeat": 2,
+        "combat_script": ["requestBackup", "quickSummon", "reload"]
+    },
+    {
+        "comment": "Baihu",
+        "url": "https://game.granbluefantasy.jp/#quest/supporter/711141/1",
+        "summons": ["kaguya"],
+        "elements": ["misc"],
+        "repeat": 1,
+        "combat_script": ["requestBackup", "quickSummon", "reload"]
+    }
+]

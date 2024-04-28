@@ -17,6 +17,7 @@ import ProvingGroundsHelper from "../../helpers/FarmingModeHelpers/ProvingGround
 import ROTBHelper from "../../helpers/FarmingModeHelpers/ROTBHelper"
 import GenericV2Helper from "../../helpers/FarmingModeHelpers/GenericV2Helper"
 import toast from "react-hot-toast"
+import { P } from "@tauri-apps/api/event-2a9960e7"
 
 const Settings = () => {
     const farmingModes: DataProps[] = [
@@ -76,6 +77,10 @@ const Settings = () => {
             label: "GenericV2",
             value: "GenericV2",
         },
+        {
+            label: "Scheduler",
+            value: "Scheduler",
+        },
     ]
 
     const useStyles = createStyles((theme) => ({
@@ -111,7 +116,8 @@ const Settings = () => {
             bsc.settings.game.farmingMode === "Arcarum" ||
             bsc.settings.game.farmingMode === "Arcarum Sandbox" ||
             bsc.settings.game.farmingMode === "Generic" ||
-            bsc.settings.game.farmingMode === "GenericV2"
+            bsc.settings.game.farmingMode === "GenericV2" ||
+            bsc.settings.game.farmingMode === "Scheduler"
         ) {
             if (bsc.settings.game.mission !== "") {
                 // Filter items based on the mission selected.
@@ -168,7 +174,8 @@ const Settings = () => {
             bsc.settings.game.farmingMode === "Arcarum" ||
             bsc.settings.game.farmingMode === "Arcarum Sandbox" ||
             bsc.settings.game.farmingMode === "Generic" ||
-            bsc.settings.game.farmingMode === "GenericV2"
+            bsc.settings.game.farmingMode === "GenericV2" ||
+            bsc.settings.game.farmingMode === "Scheduler"
         ) {
             Object.entries(data[bsc.settings.game.farmingMode]).forEach((obj) => {
                 if (obj[1].items.indexOf(bsc.settings.game.item) !== -1) {
@@ -226,7 +233,8 @@ const Settings = () => {
             bsc.settings.game.farmingMode === "Arcarum" ||
             bsc.settings.game.farmingMode === "Arcarum Sandbox" ||
             bsc.settings.game.farmingMode === "Generic" ||
-            bsc.settings.game.farmingMode === "GenericV2"
+            bsc.settings.game.farmingMode === "GenericV2" ||
+            bsc.settings.game.farmingMode === "Scheduler"
         ) {
             Object.entries(data[bsc.settings.game.farmingMode]).every((obj) => {
                 if (obj[0] === bsc.settings.game.mission) {
@@ -384,7 +392,7 @@ const Settings = () => {
     }
 
     const renderMissionSetting = () => {
-        if (bsc.settings.game.farmingMode !== "Generic" && bsc.settings.game.farmingMode !== "GenericV2") {
+        if (bsc.settings.game.farmingMode !== "Generic" && bsc.settings.game.farmingMode !== "GenericV2" && bsc.settings.game.farmingMode !== "Scheduler") {
             return (
                 <CustomSelect
                     label="Select Mission"

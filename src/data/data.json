@@ -1273,5 +1273,11 @@
             "map": "None",
             "items": ["Repeated Runs"]
         }
+    },
+    "Scheduler": {
+        "Any": {
+            "map": "None",
+            "items": ["Repeated Runs"]
+        }
     }
 }
