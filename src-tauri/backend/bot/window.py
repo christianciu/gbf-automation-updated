@@ -27,6 +27,23 @@ class Window():
     additional_calibration_required: bool = False
     party_selection_first_run: bool = True
     
+    @staticmethod
+    def goto_url_tab(url: str, pattern:str = "_") -> None:
+        """
+        Args:
+            is_sub: if use sub window
+            pattern: if match, will not go to the url
+        """
+        mouse.move_to(160, 55)
+        click()
+        sleep(.03)
+        with hold('ctrl'):
+            press(['a', 'c'])
+        if paste() != url and not paste().startswith(pattern):
+            copy(url)
+            pya.hotkey('ctrl', 'v')
+            sleep(.03)
+            press('enter')
 
 
     @staticmethod

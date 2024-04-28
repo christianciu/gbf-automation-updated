@@ -1140,7 +1140,7 @@ class CombatMode:
     ######################################################################
 
     @staticmethod
-    def start_combat_mode(script_commands: List[str] = None, is_nightmare: bool = False, is_defender: bool = False):
+    def start_combat_mode(script_commands: List[str] = None, is_nightmare: bool = False, is_defender: bool = False, use_deep_copy: bool = False):
         """Start Combat Mode with the given script file path. Start reading through the text file line by line and have the bot proceed with the commands accordingly.
 
         Args:
@@ -1172,7 +1172,10 @@ class CombatMode:
         MessageLog.print_message("######################################################################\n")
 
         if script_commands is not None:
-            command_list = script_commands
+            if use_deep_copy:
+                command_list = copy.deepcopy(script_commands)
+            else:
+                command_list = script_commands
         else:
             if is_nightmare:
                 MessageLog.print_message(f"Name of Nightmare combat script loaded: {Settings.nightmare_combat_script_name}")

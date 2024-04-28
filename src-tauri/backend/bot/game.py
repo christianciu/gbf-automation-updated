@@ -26,6 +26,7 @@ from bot.game_modes.rotb import RiseOfTheBeasts
 from bot.game_modes.special import Special
 from bot.game_modes.generic import Generic
 from bot.game_modes.generic_v2 import GenericV2
+from bot.game_modes.scheduler import Scheduler
 from bot.window import Window
 
 
@@ -1049,6 +1050,8 @@ class Game:
                     Generic.start()
                 elif Settings.farming_mode == "GenericV2":
                     GenericV2.start()
+                elif Settings.farming_mode == "Scheduler":
+                    Scheduler().start()
                     break
 
                 if Settings.item_amount_farmed < Settings.item_amount_to_farm:
