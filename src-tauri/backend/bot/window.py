@@ -31,7 +31,6 @@ class Window():
     def goto_url_tab(url: str, pattern:str = "_") -> None:
         """
         Args:
-            is_sub: if use sub window
             pattern: if match, will not go to the url
         """
         mouse.move_to(160, 55)

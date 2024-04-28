@@ -36,23 +36,6 @@ class Scheduler:
     def print_message(self, message: str):
         MessageLog.print_message(f"\n[{self.mode_name}] {message}")
 
-    # def split_script_into_groups(self, scheduler_script: list, split_by: str = "nextBattle") -> list:
-    #     # Early return if there is only 1 schedule
-    #     if split_by not in scheduler_script:
-    #         return scheduler_script
-
-    #     result = []
-    #     grouped_list = []
-    #     for ungrouped_script in scheduler_script:
-    #         if ungrouped_script not in [split_by, 'endScript']:
-    #             grouped_list.append(ungrouped_script)
-    #         else:
-    #             result.append(grouped_list)
-    #             # reset grouped_list
-    #             grouped_list = []
-
-    #     return result
-
     def start(self):
         """Starts the process to complete a run for Rise of the Beasts Farming Mode and returns the number of items detected.
 
@@ -103,41 +86,5 @@ class Scheduler:
                 else:
                     if Game.check_for_pending():
                         break
-
-        # for group in grouped_script:
-        #     for script in group:
-        #         if script.startswith("#"):
-        #             self.print_message(f"Starting schedule: {script}")
-        #         elif script.startswith("https://"):
-        #             self.print_message(f"Goto raid URL")
-        #             self._navigate(url=script)
-
-
-        # # Start the navigation process.
-        # if first_run:
-        #     Scheduler._navigate()
-        # elif Game.find_and_click_button("play_again"):
-        #     if Game.check_for_popups():
-        #         Scheduler._navigate()
-        # else:
-        #     # If the bot cannot find the "Play Again" button, check for Pending Battles and then perform navigation again.
-        #     Game.check_for_pending()
-        #     Scheduler._navigate()
-
-        # # Check for AP.
-        # Game.check_for_ap()
-
-        # # Check if the bot is at the Summon Selection screen.
-        # if ImageUtils.confirm_location("select_a_summon", tries = 30):
-        #     summon_check = Game.select_summon(Settings.summon_list, Settings.summon_element_list)
-        #     if summon_check:
-        #         # Select the Party.
-        #         Game.find_party_and_start_mission(Settings.group_number, Settings.party_number)
-
-        #         # Now start Combat Mode and detect any item drops.
-        #         if CombatMode.start_combat_mode():
-        #             Game.collect_loot(is_completed = True)
-        # else:
-        #     raise SchedulerException("Failed to arrive at the Summon Selection screen.")
 
         return None
