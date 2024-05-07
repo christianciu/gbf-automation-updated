@@ -1,21 +1,21 @@
 {
     "Fire": {
-        "summons": ["Colossus Omega", "Colossus Omega TC", "Shiva", "Agni"]
+        "summons": ["Colossus Omega", "Colossus Omega TC", "Shiva", "Agni", "Agni TC"]
     },
     "Water": {
-        "summons": ["Leviathan Omega", "Europa", "Bonito", "Varuna"]
+        "summons": ["Leviathan Omega", "Europa", "Bonito", "Varuna", "Varuna TC"]
     },
     "Earth": {
-        "summons": ["Yggdrasil Omega", "Godsworn Alexiel", "Titan", "Gorilla"]
+        "summons": ["Yggdrasil Omega", "Godsworn Alexiel", "Titan", "Titan TC", "Gorilla"]
     },
     "Wind": {
-        "summons": ["Tiamat Omega TC", "Tiamat Omega", "Grimnir", "Zephyrus"]
+        "summons": ["Tiamat Omega TC", "Tiamat Omega", "Grimnir", "Zephyrus", "Zephyrus TC"]
     },
     "Light": {
-        "summons": ["Luminiera Omega TC", "Luminiera Omega", "Lucifer", "Zeus", "Thor"]
+        "summons": ["Luminiera Omega TC", "Luminiera Omega", "Lucifer", "Lucifer TC", "Zeus", "Zeus TC", "Thor"]
     },
     "Dark": {
-        "summons": ["Celeste Omega", "Celeste Omega TC", "Bahamut", "Hades", "Belial"]
+        "summons": ["Celeste Omega", "Celeste Omega TC", "Bahamut", "Bahamut TC", "Hades", "Hades TC", "Belial"]
     },
     "Misc": {
         "summons": ["Kaguya", "White Rabbit", "Black Rabbit", "Nobiyo", "Huanglong", "Qilin"]
