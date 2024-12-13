@@ -32,7 +32,7 @@ class CombatMode:
     _retreat_check = False
     _start_time: float = None
     _list_of_exit_events_for_false = ["Time Exceeded", "No Loot"]
-    _list_of_exit_events_for_true = ["Battle Concluded", "Exp Gained", "Loot Collected"]
+    _list_of_exit_events_for_true = ["Battle Concluded", "Exp Gained", "Loot Collected", "tenshura_exp_gained"]
     _command_turn_number = 1
     _turn_number = 1  # Current turn for the script execution.
 
@@ -116,7 +116,7 @@ class CombatMode:
         return None
 
     @staticmethod
-    def _check_for_battle_end() -> str:
+    def _check_for_battle_end(exp_header: str = "") -> str:
         """Perform checks to see if the battle ended or not.
 
         Returns:
@@ -162,6 +162,14 @@ class CombatMode:
             MessageLog.print_message("######################################################################")
             MessageLog.print_message("######################################################################")
             raise CombatModeException("Loot Collected")
+        elif exp_header and ImageUtils.confirm_location(exp_header, tries = 1, suppress_error = True, bypass_general_adjustment = True):
+            MessageLog.print_message("DEBUG CHECK D")
+            MessageLog.print_message("\n######################################################################")
+            MessageLog.print_message("######################################################################")
+            MessageLog.print_message("[COMBAT] Ending Combat Mode.")
+            MessageLog.print_message("######################################################################")
+            MessageLog.print_message("######################################################################")
+            raise CombatModeException(exp_header)
         else:
             return "Nothing"
 
@@ -1041,6 +1049,21 @@ class CombatMode:
 
         return None
 
+
+    @staticmethod
+    def _instant_reload():
+        from bot.game import Game
+
+        MessageLog.print_message("[COMBAT] Bot will now attempt to manually reload...")
+
+        # If the "Cancel" button fails to disappear after 10 tries, reload anyways.
+        Game.find_and_click_button("reload")
+        Game.wait(2)
+        Game._move_mouse_security_check()  # Moving mouse after clicking reload is human-like behavior
+
+        return None        
+
+
     @staticmethod
     def _reload():
         """Reloads the page.
@@ -1140,7 +1163,8 @@ class CombatMode:
     ######################################################################
 
     @staticmethod
-    def start_combat_mode(script_commands: List[str] = None, is_nightmare: bool = False, is_defender: bool = False, use_deep_copy: bool = False):
+    def start_combat_mode(script_commands: List[str] = None, is_nightmare: bool = False, is_defender: bool = False, use_deep_copy: bool = False,
+                          exp_header: str = "no_loot"):
         """Start Combat Mode with the given script file path. Start reading through the text file line by line and have the bot proceed with the commands accordingly.
 
         Args:
@@ -1277,6 +1301,8 @@ class CombatMode:
                         CombatMode._back()
                     elif "reload" in command:
                         CombatMode._reload()
+                    elif "refresh" in command:
+                        CombatMode._instant_reload()
                     elif command == "repeatmanualattackandreload":
                         MessageLog.print_message("[COMBAT] Enabling manually pressing the Attack button and reloading (if the mission supports it) until battle ends.")
                         manual_attack_and_reload = True
@@ -1322,7 +1348,11 @@ class CombatMode:
             ######################################################################
             # When the bot reaches here, all the commands in the combat script has been processed.
             MessageLog.print_message("\n[COMBAT] Bot has reached end of script. Automatically attacking until battle ends or Party wipes...")
-            CombatMode._check_for_battle_end()
+            MessageLog.print_message("DEBUG: CHECK A")
+
+            CombatMode._check_for_battle_end(exp_header=exp_header)
+
+            MessageLog.print_message("DEBUG: CHECK B")
 
             if manual_attack_and_reload is False:
                 # Attempt to activate Full Auto at the end of the combat script. If not, then attempt to activate Semi Auto.
@@ -1340,6 +1370,8 @@ class CombatMode:
                 # Main workflow loop for manually pressing the Attack button and reloading until combat ends.
                 CombatMode._loop_manual()
         except CombatModeException as e:
+            MessageLog.print_message("DEBUG: CHECK C")
+
             if CombatMode._list_of_exit_events_for_false.__contains__(e.__str__()):
                 return False
             elif CombatMode._list_of_exit_events_for_true.__contains__(e.__str__()):

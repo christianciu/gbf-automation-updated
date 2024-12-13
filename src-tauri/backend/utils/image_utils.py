@@ -162,19 +162,23 @@ class ImageUtils:
         while len(scales) != 0:
             new_scale = scales.pop(0)
 
-            # Rescale if necessary.
-            if new_scale != 1.0:
-                template = PIL.Image.open(image_path)
-                template = ImageUtils._rescale(template, new_scale)
-                Image.save(template, f"temp/rescaled.png")
-                template_array = cv2.imread(f"temp/rescaled.png", 0)
-            else:
-                template_array = cv2.imread(image_path, 0)
+            try:
+                # Rescale if necessary.
+                if new_scale != 1.0:
+                    template = PIL.Image.open(image_path)
+                    template = ImageUtils._rescale(template, new_scale)
+                    Image.save(template, f"temp/rescaled.png")
+                    template_array = cv2.imread(f"temp/rescaled.png", 0)
+                else:
+                    template_array = cv2.imread(image_path, 0)
 
-            if is_summon:
-                # Crop the summon template image so that plus marks would not potentially obscure any match.
-                height, width = template_array.shape
-                template_array = template_array[0:height, 0:width - int(40 * ImageUtils._custom_scale)]
+                if is_summon:
+                    # Crop the summon template image so that plus marks would not potentially obscure any match.
+                    height, width = template_array.shape
+                    template_array = template_array[0:height, 0:width - int(40 * ImageUtils._custom_scale)]
+            except AttributeError as e:
+                MessageLog.print_message(f"[ERROR] Failed in processing image path: {image_path}")
+                raise e
 
             image.save(f"temp/source.png")
             src: numpy.ndarray = cv2.imread(f"temp/source.png", 0)
@@ -424,7 +428,7 @@ class ImageUtils:
         arcarum_stage_effect_list = ["arcarum_stage_effect_active"]
         no_loot_screen_list = ["no_loot"]
         battle_concluded_popup_list = ["battle_concluded"]
-        exp_gained_popup_list = ["exp_gained"]
+        exp_gained_popup_list = ["exp_gained", "tenshura_exp_gained"]
         loot_collection_screen_list = ["loot_collected"]
 
         if Settings.enable_calibration_adjustment and calibration_list.__contains__(image_name):

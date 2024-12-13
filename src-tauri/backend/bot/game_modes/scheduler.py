@@ -62,10 +62,17 @@ class Scheduler:
             summons = script['summons']
             script_command = script.get('combat_script')
             elements = script.get("elements")
+            exp_header = script.get("exp_header")
+            ok_button = script.get("ok_button")
+            self.print_message("header: {exp_header}")
+            delay_between_run = script.get("delay_between_run", 15)
 
             for attempt_num in range(max_attempt):
                 self.print_message(f"Goto raid URL")
-                self._navigate(url=battle_url)
+                
+                could_play_again = Game.find_and_click_button("play_again")
+                if not could_play_again:
+                    self._navigate(url=battle_url)
 
                 Game.wait(1.5)  # delay before summon selection screen popup
 
@@ -79,8 +86,10 @@ class Scheduler:
                             # Handle the rare case where joining the Raid after selecting the Summon and Party led the bot to the Quest Results screen with no loot to collect.
                             if ImageUtils.confirm_location("no_loot", disable_adjustment = True):
                                 MessageLog.print_message("\n[RAID] Seems that the Raid just ended. Moving back to the Home screen and joining another Raid...")
-                            elif CombatMode.start_combat_mode(script_commands=script_command, use_deep_copy=True):
-                                Game.collect_loot(is_completed = True)
+                            elif CombatMode.start_combat_mode(script_commands=script_command, use_deep_copy=True, exp_header=exp_header):
+                                Game.collect_loot(is_completed = True, ok_button=ok_button)
+                                Game._move_mouse_security_check()
+                                Game._delay_between_runs(in_seconds=delay_between_run)
                         else:
                             MessageLog.print_message("\n[RAID] Seems that the Raid ended before the bot was able to join. Now looking for another Raid to join...")
                 else:
