@@ -216,6 +216,23 @@ class Raid:
 
         MessageLog.print_message(f"\n[RAID] Beginning process to navigate to the raid: {Settings.mission_name}...")
 
+        # Check if Backup Request button exist or not first
+        if Game.find_and_click_button("raid_bookmark") or Game.find_and_click_button("raid_backup_requests"):
+            Game.wait(0.5)
+
+            max_attempts = 3
+            for attempt_num in range(max_attempts):
+                # Check for the "You retreated from the raid battle" popup.
+                if ImageUtils.confirm_location("raid"):
+                    Raid._join_raid()
+                    break
+                elif ImageUtils.confirm_location("you_retreated_from_the_raid_battle", tries=1):
+                    Game.find_and_click_button("ok")
+            else:  # no break
+                Raid.start(False)
+            return
+                # raise RaidException("Failed to reach the Backup Requests screen.")
+
         # Head to the Home screen.
         Game.go_back_home(confirm_location_check = True)
 
