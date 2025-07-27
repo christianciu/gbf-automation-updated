@@ -1,3 +1,6 @@
+# (23 SEP 24) DO NOT USE SCHEDULER FUNCTION YET AS I FORGOT TO ADD DELAY AFTER BATTLE. IT MAY LEADS TO BAN
+
+
 # Granblue Automation using Template Matching (It is like Full Auto, but with Full Customization!)
 
 ![GitHub commit activity](https://img.shields.io/github/commit-activity/m/steve1316/granblue-automation-pyautogui?logo=GitHub) ![GitHub last commit](https://img.shields.io/github/last-commit/steve1316/granblue-automation-pyautogui?logo=GitHub) ![GitHub issues](https://img.shields.io/github/issues/steve1316/granblue-automation-pyautogui?logo=GitHub) ![GitHub pull requests](https://img.shields.io/github/issues-pr/steve1316/granblue-automation-pyautogui?logo=GitHub) ![GitHub](https://img.shields.io/github/license/steve1316/granblue-automation-pyautogui?logo=GitHub)

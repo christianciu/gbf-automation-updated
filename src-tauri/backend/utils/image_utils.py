@@ -165,27 +165,30 @@ class ImageUtils:
 
         while len(scales) != 0:
             new_scale = scales.pop(0)
+            try:
+                # Rescale if necessary.
+                if new_scale != 1.0:
+                    template = ImageUtils.img_cache.get(image_path)
+                    if template is  None:
+                        template = PIL.Image.open(image_path)
+                        ImageUtils.img_cache[image_path]=template
+                    template = ImageUtils._rescale(template, new_scale)
+                    ImageUtils.rescaled_cache=template
+                    template_array = cv2.cvtColor(numpy.array(ImageUtils.rescaled_cache), cv2.COLOR_RGB2GRAY)
+                else:
+                    template = ImageUtils.img_cache.get(image_path)
+                    if template is  None:
+                        template = PIL.Image.open(image_path)
+                        ImageUtils.img_cache[image_path]=template
+                    template_array = cv2.cvtColor(numpy.array(template), cv2.COLOR_RGB2GRAY)
 
-            # Rescale if necessary.
-            if new_scale != 1.0:
-                template = ImageUtils.img_cache.get(image_path)
-                if template is  None:
-                    template = PIL.Image.open(image_path)
-                    ImageUtils.img_cache[image_path]=template
-                template = ImageUtils._rescale(template, new_scale)
-                ImageUtils.rescaled_cache=template
-                template_array = cv2.cvtColor(numpy.array(ImageUtils.rescaled_cache), cv2.COLOR_RGB2GRAY)
-            else:
-                template = ImageUtils.img_cache.get(image_path)
-                if template is  None:
-                    template = PIL.Image.open(image_path)
-                    ImageUtils.img_cache[image_path]=template
-                template_array = cv2.cvtColor(numpy.array(template), cv2.COLOR_RGB2GRAY)
-
-            if is_summon:
-                # Crop the summon template image so that plus marks would not potentially obscure any match.
-                height, width = template_array.shape
-                template_array = template_array[0:height, 0:width - int(40 * ImageUtils._custom_scale)]
+                    if is_summon:
+                        # Crop the summon template image so that plus marks would not potentially obscure any match.
+                        height, width = template_array.shape
+                        template_array = template_array[0:height, 0:width - int(40 * ImageUtils._custom_scale)]
+            except AttributeError as e:
+                MessageLog.print_message(f"[ERROR] Failed in processing image path: {image_path}")
+                raise e
 
             src: numpy.ndarray = cv2.cvtColor(numpy.array(image), cv2.COLOR_RGB2GRAY)
             height, width = template_array.shape
@@ -440,7 +443,7 @@ class ImageUtils:
         arcarum_stage_effect_list = ["arcarum_stage_effect_active"]
         no_loot_screen_list = ["no_loot"]
         battle_concluded_popup_list = ["battle_concluded"]
-        exp_gained_popup_list = ["exp_gained"]
+        exp_gained_popup_list = ["exp_gained", "tenshura_exp_gained"]
         loot_collection_screen_list = ["loot_collected"]
 
         if Settings.enable_calibration_adjustment and calibration_list.__contains__(image_name):

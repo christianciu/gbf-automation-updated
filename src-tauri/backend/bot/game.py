@@ -294,12 +294,19 @@ class Game:
             ImageUtils.generate_alert_for_captcha()
 
     @staticmethod
-    def _delay_between_runs():
+    def _delay_between_runs(in_seconds: int = 0):
         """Execute a delay after every run completed based on user settings.
 
         Returns:
             None
         """
+        if in_seconds:
+            MessageLog.print_message(f"\n[INFO] Now waiting for {in_seconds} seconds (from script json) as the resting period. Please do not navigate from the current screen.")
+            Game.wait(in_seconds)
+
+            MessageLog.print_message("\n[INFO] Resting period complete.")
+            return None
+
         if Settings.enable_delay_between_runs:
             # Check if the provided delay is valid.
             if int(Settings.delay_in_seconds) < 0:
@@ -623,7 +630,8 @@ class Game:
         return None
 
     @staticmethod
-    def collect_loot(is_completed: bool, is_pending_battle: bool = False, is_event_nightmare: bool = False, skip_info: bool = False, skip_popup_check: bool = False, is_defender: bool = False, is_herald: bool = False):
+    def collect_loot(is_completed: bool, is_pending_battle: bool = False, is_event_nightmare: bool = False, skip_info: bool = False, skip_popup_check: bool = False,
+                     is_defender: bool = False, is_herald: bool = False, ok_button: str = ""):
         """Collects the loot from the Results screen while clicking away any dialog popups while updating the internal item count.
 
         Args:
