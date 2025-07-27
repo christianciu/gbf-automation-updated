@@ -46,6 +46,10 @@ class ImageUtils:
     _reader: easyocr.Reader = None
 
     page_key_pixel = {}
+    #replaces temp/rescaled.png
+    rescaled_cache:Image
+    #img_cache maps file path to image
+    img_cache:dict[str,Image] = dict()
 
     @staticmethod
     def captcha_pixel_check(page_name:str = "supporter") -> bool:
@@ -161,27 +165,32 @@ class ImageUtils:
 
         while len(scales) != 0:
             new_scale = scales.pop(0)
-
             try:
                 # Rescale if necessary.
                 if new_scale != 1.0:
-                    template = PIL.Image.open(image_path)
+                    template = ImageUtils.img_cache.get(image_path)
+                    if template is  None:
+                        template = PIL.Image.open(image_path)
+                        ImageUtils.img_cache[image_path]=template
                     template = ImageUtils._rescale(template, new_scale)
-                    Image.save(template, f"temp/rescaled.png")
-                    template_array = cv2.imread(f"temp/rescaled.png", 0)
+                    ImageUtils.rescaled_cache=template
+                    template_array = cv2.cvtColor(numpy.array(ImageUtils.rescaled_cache), cv2.COLOR_RGB2GRAY)
                 else:
-                    template_array = cv2.imread(image_path, 0)
+                    template = ImageUtils.img_cache.get(image_path)
+                    if template is  None:
+                        template = PIL.Image.open(image_path)
+                        ImageUtils.img_cache[image_path]=template
+                    template_array = cv2.cvtColor(numpy.array(template), cv2.COLOR_RGB2GRAY)
 
-                if is_summon:
-                    # Crop the summon template image so that plus marks would not potentially obscure any match.
-                    height, width = template_array.shape
-                    template_array = template_array[0:height, 0:width - int(40 * ImageUtils._custom_scale)]
+                    if is_summon:
+                        # Crop the summon template image so that plus marks would not potentially obscure any match.
+                        height, width = template_array.shape
+                        template_array = template_array[0:height, 0:width - int(40 * ImageUtils._custom_scale)]
             except AttributeError as e:
                 MessageLog.print_message(f"[ERROR] Failed in processing image path: {image_path}")
                 raise e
 
-            image.save(f"temp/source.png")
-            src: numpy.ndarray = cv2.imread(f"temp/source.png", 0)
+            src: numpy.ndarray = cv2.cvtColor(numpy.array(image), cv2.COLOR_RGB2GRAY)
             height, width = template_array.shape
 
             result: numpy.ndarray = cv2.matchTemplate(src, template_array, ImageUtils._match_method)
@@ -281,16 +290,22 @@ class ImageUtils:
 
             # Rescale if necessary.
             if new_scale != 1.0:
-                template = PIL.Image.open(image_path)
+                template = ImageUtils.img_cache.get(image_path)
+                if template is  None:
+                    template = PIL.Image.open(image_path)
+                    ImageUtils.img_cache[image_path]=template
                 template = ImageUtils._rescale(template, new_scale)
-                Image.save(template, f"temp/rescaled.png")
-                template_array = cv2.imread(f"temp/rescaled.png", 0)
+                ImageUtils.rescaled_cache=template
+                template_array = cv2.cvtColor(numpy.array(ImageUtils.rescaled_cache), cv2.COLOR_RGB2GRAY)
             else:
-                template_array = cv2.imread(image_path, 0)
+                template = ImageUtils.img_cache.get(image_path)
+                if template is  None:
+                    template = PIL.Image.open(image_path)
+                    ImageUtils.img_cache[image_path]=template
+                template_array = cv2.cvtColor(numpy.array(template), cv2.COLOR_RGB2GRAY)
 
-            image.save(f"temp/source.png")
             height, width = template_array.shape
-            src: numpy.ndarray = cv2.imread(f"temp/source.png", 0)
+            src: numpy.ndarray = cv2.cvtColor(numpy.array(image), cv2.COLOR_RGB2GRAY)
 
             result: numpy.ndarray = cv2.matchTemplate(src, template_array, ImageUtils._match_method)
             min_val, max_val, min_loc, max_loc = cv2.minMaxLoc(result)
@@ -931,7 +946,7 @@ class ImageUtils:
         if Settings.custom_scale == 1.0:
             image = PIL.Image.open(f"{ImageUtils._current_dir}/images/buttons/{image_name.lower()}.jpg")
         else:
-            image = PIL.Image.open(f"temp/rescaled.png")
+            image = ImageUtils.rescaled_cache
         width, height = image.size
         image.close()
         return width, height

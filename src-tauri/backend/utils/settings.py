@@ -124,7 +124,7 @@ class Settings:
 
     # #### sandbox defender #### #
     enable_defender: bool = dictor(_data, "sandbox.enableDefender", False)
-    enable_herald: bool = dictor(_data, "sandbox.enableHerald", False)
+    enable_herald: bool = dictor(_data, "sandbox.enableHerald", True)
     enable_gold_chest: bool = dictor(_data, "sandbox.enableGoldChest", False)
     _enable_custom_defender_settings: bool = dictor(_data, "sandbox.enableCustomDefenderSettings", False)
     defender_combat_script_name: str = dictor(_data, "sandbox.defenderCombatScriptName", "")

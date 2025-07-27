@@ -8,7 +8,6 @@ from utils.message_log import MessageLog
 from utils.image_utils import ImageUtils
 from utils.mouse_utils import MouseUtils
 
-
 class CombatModeException(Exception):
     def __init__(self, message):
         super().__init__(message)
@@ -35,7 +34,7 @@ class CombatMode:
     _list_of_exit_events_for_true = ["Battle Concluded", "Exp Gained", "Loot Collected", "tenshura_exp_gained"]
     _command_turn_number = 1
     _turn_number = 1  # Current turn for the script execution.
-
+    _one_click_xy = None
     ######################################################################
     ######################################################################
     # Checks
@@ -68,7 +67,28 @@ class CombatMode:
                 Game.find_and_click_button("cancel")
                 Game.find_and_click_button("retreat_confirmation")
                 CombatMode._retreat_check = True
-            elif Settings.farming_mode == "Raid" or Settings.farming_mode == "Dread Barrage" or Settings.farming_mode == "Guild Wars" or Settings.map_name.__contains__("Raid"):
+            elif Settings.farming_mode == "Raid" or Settings.farming_mode == "Guild Wars" or Settings.farming_mode == "Scheduler":
+                MessageLog.print_message(f"[WARNING] Party has unfortunately wiped during Combat Mode for this Raid battle. Requesting backup...")
+
+                Game.find_and_click_button("salute")
+                Game.find_and_click_button("ok")
+                # Then cancel the popup that asks you if you want to use a Full Elixir to come back.
+                Game.find_and_click_button("cancel")
+                Game.find_and_click_button("close")
+                CombatMode._request_backup()
+                #the game can stop updating if waiting for a while so reload every 10 minutes
+                wait_time=time.time()
+                while CombatMode._check_for_battle_end()=="Nothing":
+                    if ImageUtils.wait_appear("next",10,True) or time.time()-wait_time>600:
+                        MessageLog.print_message("[COMBAT] Reloading page...")
+                        Game.find_and_click_button("reload")
+                        Game.wait(5)
+                        CombatMode._request_backup()
+                        wait_time=time.time()
+                    else:
+                        MessageLog.print_message(f"[COMBAT] Waiting for battle to end.")
+                    
+            elif Settings.farming_mode == "Dread Barrage" or Settings.farming_mode == "Guild Wars" or Settings.map_name.__contains__("Raid"):
                 MessageLog.print_message(f"[WARNING] Party has unfortunately wiped during Combat Mode for this Raid battle. Backing out now without retreating...")
 
                 # Head back to the Home screen.
@@ -591,9 +611,8 @@ class CombatMode:
         Game.wait(1)
 
         # Find the location of the "Cancel" button and then click the button right next to it. This is to ensure that no matter what the blue "Request Backup" button's appearance, it is ensured to be pressed.
-        cancel_button_location = ImageUtils.find_button("cancel")
-        if cancel_button_location is not None:
-            MouseUtils.move_and_click_point(cancel_button_location[0] + 200, cancel_button_location[1], "cancel")
+        if not Game.find_and_click_button("backup",suppress_error=True):
+            Game.find_and_click_button("backup_pot")
 
         Game.wait(1)
 
@@ -948,26 +967,50 @@ class CombatMode:
             None
         """
         from bot.game import Game
-
-        if not Game.find_and_click_button("full_auto", suppress_error=True):
-            CombatMode._full_auto = ImageUtils.find_button("full_auto_enabled") is not None
-        else:
-            MessageLog.print_message("[COMBAT] Bot enabled Full Auto.")
-            CombatMode._full_auto = True
+        from utils.mouse_utils import MouseUtils
+        #check if full auto was already enabled(such as from one click auto)
+        CombatMode._full_auto = ImageUtils.find_button("full_auto_enabled") is not None
+        if not CombatMode._full_auto:
+            if not Game.find_and_click_button("full_auto", suppress_error=True):
+                CombatMode._full_auto = ImageUtils.find_button("full_auto_enabled") is not None
+            else:
+                MessageLog.print_message("[COMBAT] Bot enabled Full Auto.")
+                CombatMode._full_auto = True
 
         # If the bot failed to find and click the "Full Auto" button, fallback to the "Semi Auto" button.
         if not CombatMode._full_auto:
             MessageLog.print_message("[COMBAT] Bot failed to find the \"Full Auto\" button. Falling back to Semi Auto.")
             CombatMode._enable_semi_auto()
 
-        if reload:
+        if reload and (CombatMode._full_auto or CombatMode._semi_auto):
             attack_vanished = ImageUtils.wait_vanish("attack", timeout=1, suppress_error=True)
             if not attack_vanished:
                 Game._move_mouse_security_check()  # Moving mouse after enabling auto mode is human-like behavior
 
             if attack_vanished or ImageUtils.wait_vanish("attack", timeout=45):
                 MessageLog.print_message("[COMBAT] Reloading page since attack registered...")
+                if ImageUtils.confirm_location("loot_collected", tries = 1, disable_adjustment = True) or ImageUtils.find_button("menu") is None:
+                    return None
                 Game.find_and_click_button("reload")
+                #pre battle auto enable when reloading
+                if True: # not Settings.combat_script or Settings.combat_script_name == "semi_auto.txt" or Settings.combat_script_name == "full_auto.txt":
+                    #mouse needs to already be close to button in order to click in time
+                    if CombatMode._one_click_xy is not None:
+                        point=MouseUtils._randomize_point(CombatMode._one_click_xy[0],CombatMode._one_click_xy[1],"one_click_auto")
+                        MouseUtils.move_to(point[0],point[1])
+                    start_time = time.time()
+                    while time.time() - start_time < 3:
+                        if ImageUtils.confirm_location("one_tap_auto", tries=1, suppress_error=True):
+                            if CombatMode._one_click_xy is None:
+                                MessageLog.print_message("[COMBAT] Trying to click one tap auto...")
+                                #caches location for speed. without cache it is too slow to click the button, so the first time probably wont do pre battle auto 
+                                CombatMode._one_click_xy = ImageUtils.find_button("one_click_auto",tries=1,suppress_error=True)
+                                Game.find_and_click_button("one_click_auto",clicks=1,tries=1,suppress_error=True)
+                            else:
+                                MessageLog.print_message("[COMBAT] clicking one tap auto...")
+                                MouseUtils.click()
+                            Game._move_mouse_security_check()
+                            break
                 Game._move_mouse_security_check()  # Moving mouse after refreshing is human-like behavior
                 CombatMode._turn_number += 1
             else:
@@ -1120,8 +1163,12 @@ class CombatMode:
         """
         from bot.game import Game
 
-        while not CombatMode._retreat_check and (CombatMode._full_auto or CombatMode._semi_auto):
-            ImageUtils.wait_appear("menu", timeout=5)
+        while not CombatMode._retreat_check and (CombatMode._full_auto or CombatMode._semi_auto or CombatMode._check_for_battle_end()=="Nothing"):
+            #if menu doesn't show up and battle isn't at an end state then the bot has somehow left the battle. seems to mainly happen in sandbox with refresh turned on.
+            if not ImageUtils.wait_appear("menu", timeout=5):
+                CombatMode._check_for_battle_end()
+                if not ImageUtils.wait_appear("menu", timeout=20):
+                    return None
             CombatMode._check_for_battle_end()
             CombatMode._wait_for_attack()
 
@@ -1219,7 +1266,11 @@ class CombatMode:
 
         # Save the position of the Attack button.
         CombatMode._attack_button_location = ImageUtils.find_button("attack", tries = 50, bypass_general_adjustment = True)
-
+        if CombatMode._attack_button_location is None:
+            MessageLog.print_message(f"[WARNING] Attack button not found. Trying again for 5 seconds")
+            start_time = time.time()
+            while time.time() - start_time < 5:
+                CombatMode._attack_button_location = ImageUtils.find_button("attack", tries = 50, bypass_general_adjustment = True)
         # TODO: Add back this block if running into issues with Raid
         # if Settings.farming_mode == "Raid" and CombatMode._attack_button_location is None:
         #     MessageLog.print_message(f"\n[ERROR] Cannot find Attack button. Raid must have just ended.")
