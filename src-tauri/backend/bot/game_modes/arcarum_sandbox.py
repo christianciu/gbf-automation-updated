@@ -1035,6 +1035,7 @@ class ArcarumSandbox:
                 if CombatMode.start_combat_mode():
                     Game.collect_loot(is_completed = True)
             Game.find_and_click_button("expedition")
+            Game.check_for_skyscope()
 
         if Settings.no_party_selection:
             Settings.party_selection_first_run = True
@@ -1061,6 +1062,8 @@ class ArcarumSandbox:
         elif Game.find_and_click_button("play_again") is False:
             if Settings.engaged_defender_battle:
                 Settings.engaged_defender_battle = False
+            if Settings.engaged_herald_battle:
+                Settings.engaged_herald_battle = False
             if Game.check_for_pending():
                 ArcarumSandbox._first_run = True
                 ArcarumSandbox._navigate_to_zone()
@@ -1068,6 +1071,11 @@ class ArcarumSandbox:
                 # If the bot cannot find the "Play Again" button, click the Expedition button.
                 
                 Game.find_and_click_button("expedition")
+                if ImageUtils.confirm_location("trophy_achieved"):
+                    Game.find_and_click_button("close")
+                Game.check_for_skyscope()
+                if ImageUtils.confirm_location("trophy_achieved"):
+                    Game.find_and_click_button("close")
 
                 # Wait out the animations that play, whether it be Treasure or Defender spawning.
                 Game.wait(5.0)
@@ -1080,24 +1088,32 @@ class ArcarumSandbox:
                     # Start the mission again.
                     Game.wait(3.0)
                     ArcarumSandbox._navigate_to_mission(skip_to_action = True)
-
+        if ImageUtils.confirm_location("trophy_achieved"):
+            Game.find_and_click_button("close")
+        Game.check_for_skyscope()
+        if ImageUtils.confirm_location("trophy_achieved"):
+            Game.find_and_click_button("close")
         # Refill AAP if needed.
         ArcarumSandbox._play_zone_boss()
         ArcarumSandbox._refill_aap()
 
         Game.wait(3.0)
-
-        if Settings.engaged_defender_battle:
-            if Game.find_party_and_start_mission(Settings.defender_group_number, Settings.defender_party_number, bypass_first_run = True):
-                if CombatMode.start_combat_mode(is_defender = Settings.engaged_defender_battle):
-                    Game.collect_loot(is_completed = True, is_defender = Settings.engaged_defender_battle)
-        elif Settings.engaged_herald_battle:
-            if Game.find_party_and_start_mission(Settings.group_number, Settings.party_number):
-                if CombatMode.start_combat_mode():
-                    Game.collect_loot(is_completed = True, is_herald=Settings.engaged_herald_battle)
-        else:
-            if Game.find_party_and_start_mission(Settings.group_number, Settings.party_number):
-                if CombatMode.start_combat_mode():
-                    Game.collect_loot(is_completed = True)
-
+        try:
+            if Settings.engaged_defender_battle:
+                if Game.find_party_and_start_mission(Settings.defender_group_number, Settings.defender_party_number, bypass_first_run = True):
+                    if CombatMode.start_combat_mode(is_defender = Settings.engaged_defender_battle):
+                        Game.collect_loot(is_completed = True, is_defender = Settings.engaged_defender_battle)
+            elif Settings.engaged_herald_battle:
+                if Game.find_party_and_start_mission(Settings.group_number, Settings.party_number,skip_select=True):
+                    if CombatMode.start_combat_mode():
+                        Game.collect_loot(is_completed = True, is_herald=Settings.engaged_herald_battle)
+            else:
+                if Game.find_party_and_start_mission(Settings.group_number, Settings.party_number):
+                    if CombatMode.start_combat_mode():
+                        Game.collect_loot(is_completed = True)
+        except Exception as e:
+            if ImageUtils.confirm_location("arcarum_sandbox_inzone"):
+                MessageLog.print_message(f"\n[WARNING] missed loot collection. likely refreshed through it.")
+            else:
+                raise
         return None

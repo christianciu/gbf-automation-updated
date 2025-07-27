@@ -290,7 +290,7 @@ export const defaultSettings: Settings = {
     },
     sandbox: {
         enableDefender: false,
-        enableHerald: false,
+        enableHerald: true,
         enableGoldChest: false,
         enableCustomDefenderSettings: false,
         numberOfDefenders: 1,

@@ -448,7 +448,7 @@ class Game:
         return None
 
     @staticmethod
-    def find_party_and_start_mission(group_number: int, party_number: int, tries: int = 30, bypass_first_run: bool = False):
+    def find_party_and_start_mission(group_number: int, party_number: int, tries: int = 30, bypass_first_run: bool = False, skip_select:bool = False):
         """Select the specified Group and Party. It will then start the mission.
 
         Args:
@@ -456,12 +456,13 @@ class Game:
             party_number (int): The specified Party to start the mission with.
             tries (int, optional): Number of tries to select a Set before failing. Defaults to 30.
             bypass_first_run (bool, optional): Determines if the bot should reselect the party in subsequent runs. Defaults to False.
+            skip_select (bool, optional): Enable to always use preselected party.
 
         Returns:
             (bool): Returns False if it detects the "Raid is full/Raid is already done" dialog. Otherwise, return True.
         """
         # Repeat runs already have the same party already selected.
-        if Settings.party_selection_first_run or bypass_first_run:
+        if (Settings.party_selection_first_run or bypass_first_run) and not skip_select:
             MessageLog.print_message(f"\n[INFO] Starting process to select Group {group_number}, Party {party_number}...")
 
             # Find the Group that the Party is in first. If the specified Group number is less than 8, it is in Set A. Otherwise, it is in Set B. If failed, alternate searching for Set A / Set B until
@@ -647,19 +648,25 @@ class Game:
                 if loot_collection_tries <= 0:
                     raise RuntimeError("Unable to progress in the Loot Collection process.")
 
-                Game.find_and_click_button("ok", tries = 1, suppress_error = True)
-                Game.find_and_click_button("close", tries = 1, suppress_error = True)
-                Game.find_and_click_button("cancel", tries = 1, suppress_error = True)
+                if Game.find_and_click_button("ok", tries = 1, suppress_error = True):
+                    loot_collection_tries = 30
+                if Game.find_and_click_button("close", tries = 1, suppress_error = True):
+                    loot_collection_tries = 30
+                if Game.find_and_click_button("cancel", tries = 1, suppress_error = True):
+                    loot_collection_tries = 30
 
                 # Search for and click on the "Extended Mastery" popup.
-                Game.find_and_click_button("new_extended_mastery_level", tries = 1, suppress_error = True)
+                if Game.find_and_click_button("new_extended_mastery_level", tries = 1, suppress_error = True):
+                    loot_collection_tries = 30
 
                 if ImageUtils.confirm_location("no_loot", tries = 1, suppress_error = True, disable_adjustment = True):
                     return None
 
                 if Settings.debug_mode:
                     MessageLog.print_message("[DEBUG] Have not detected the Loot Collection screen yet...")
-
+                Game.wait(1)
+        if ImageUtils.confirm_location("arcarum_sandbox_inzone"):
+            raise Exception("missed loot collection. likely refreshed through it.")
         # Now that the bot is at the Loot Collected screen, detect any user-specified items.
         if is_completed and not is_pending_battle and not is_event_nightmare and not is_defender and not is_herald:
             MessageLog.print_message("\n[INFO] Detecting if any user-specified loot dropped from this run...")

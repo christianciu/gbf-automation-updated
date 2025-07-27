@@ -3,10 +3,10 @@
         "summons": ["Colossus Omega", "Colossus Omega TC", "Shiva", "Agni", "Agni TC"]
     },
     "Water": {
-        "summons": ["Leviathan Omega", "Europa", "Bonito", "Varuna", "Varuna TC"]
+        "summons": ["Leviathan Omega","Leviathan Omega TC", "Europa", "Bonito", "Varuna", "Varuna TC"]
     },
     "Earth": {
-        "summons": ["Yggdrasil Omega", "Godsworn Alexiel", "Titan", "Titan TC", "Gorilla"]
+        "summons": ["Yggdrasil Omega","Yggdrasil Omega TC", "Godsworn Alexiel", "Titan", "Titan TC", "Gorilla"]
     },
     "Wind": {
         "summons": ["Tiamat Omega TC", "Tiamat Omega", "Grimnir", "Zephyrus", "Zephyrus TC"]
