@@ -68,11 +68,12 @@ class Arcarum:
         if Game.find_and_click_button(f"arcarum_{formatted_map_name}", tries = 10) is False:
             # Resume the expedition if it is already in-progress.
             Game.find_and_click_button("arcarum_exploring")
-        elif ImageUtils.confirm_location("arcarum_departure_check"):
-            MessageLog.print_message(f"[ARCARUM] Now using 1 Arcarum ticket to start this expedition...")
-            result_check = Game.find_and_click_button("start_expedition")
-            Game.wait(6)
-            return result_check
+        elif Game.find_and_click_button("arcarum_standard_expedition"):
+            if ImageUtils.confirm_location("arcarum_departure_check"):
+                MessageLog.print_message(f"[ARCARUM] Now using 1 Arcarum ticket to start this expedition...")
+                result_check = Game.find_and_click_button("start_expedition")
+                Game.wait(6)
+                return result_check
         elif Game.find_and_click_button("resume"):
             Game.wait(3)
             return True
@@ -105,7 +106,7 @@ class Arcarum:
 
                 Game.check_for_captcha()
 
-                if ImageUtils.confirm_location("arcarum_party_selection", tries = 3, bypass_general_adjustment = True):
+                if ImageUtils.find_button("auto_select", tries = 3, bypass_general_adjustment = True):
                     return "Combat"
                 elif Game.find_and_click_button("ok", tries = 3, bypass_general_adjustment = True):
                     return "Claimed Treasure/Keythorn"
