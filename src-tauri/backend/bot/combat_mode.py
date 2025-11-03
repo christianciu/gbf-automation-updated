@@ -163,7 +163,6 @@ class CombatMode:
             MessageLog.print_message("######################################################################")
             raise CombatModeException("Loot Collected")
         elif exp_header and ImageUtils.confirm_location(exp_header, tries = 1, suppress_error = True, bypass_general_adjustment = True):
-            MessageLog.print_message("DEBUG CHECK D")
             MessageLog.print_message("\n######################################################################")
             MessageLog.print_message("######################################################################")
             MessageLog.print_message("[COMBAT] Ending Combat Mode.")
@@ -246,8 +245,10 @@ class CombatMode:
         Returns:
             (bool): True if the bot reloaded the page. False otherwise.
         """
+        bypass = True
         # If the "Cancel" button vanishes, that means the attack is in-progress. Now reload the page and wait for either the attack to finish or Battle ended.
-        if Settings.enable_refresh_during_combat and (CombatMode._check_raid() or (Settings.farming_mode == "Generic" and Settings.enable_force_reload)):
+        if bypass:
+        # if Settings.enable_refresh_during_combat and (CombatMode._check_raid() or (Settings.farming_mode == "Generic" and Settings.enable_force_reload)):
             from bot.game import Game
 
             if CombatMode._check_for_battle_end() == "Nothing":
@@ -965,11 +966,16 @@ class CombatMode:
             if not attack_vanished:
                 Game._move_mouse_security_check()  # Moving mouse after enabling auto mode is human-like behavior
 
-            if attack_vanished or ImageUtils.wait_vanish("attack", timeout=45):
+            if attack_vanished or ImageUtils.wait_vanish("attack", timeout=60):
                 MessageLog.print_message("[COMBAT] Reloading page since attack registered...")
-                Game.find_and_click_button("reload")
-                Game._move_mouse_security_check()  # Moving mouse after refreshing is human-like behavior
-                CombatMode._turn_number += 1
+                Game.wait(0.2)
+                if ImageUtils.find_button("next"):
+                    Game.wait(2)
+                    CombatMode._check_for_battle_end()
+                else:
+                    Game.find_and_click_button("reload")
+                    Game._move_mouse_security_check()  # Moving mouse after refreshing is human-like behavior
+                    CombatMode._turn_number += 1
             else:
                 CombatMode._check_for_wipe()
                 CombatMode._check_for_battle_end()
@@ -1348,12 +1354,7 @@ class CombatMode:
             ######################################################################
             # When the bot reaches here, all the commands in the combat script has been processed.
             MessageLog.print_message("\n[COMBAT] Bot has reached end of script. Automatically attacking until battle ends or Party wipes...")
-            MessageLog.print_message("DEBUG: CHECK A")
-
             CombatMode._check_for_battle_end(exp_header=exp_header)
-
-            MessageLog.print_message("DEBUG: CHECK B")
-
             if manual_attack_and_reload is False:
                 # Attempt to activate Full Auto at the end of the combat script. If not, then attempt to activate Semi Auto.
                 if CombatMode._full_auto is False and CombatMode._semi_auto is False:
@@ -1370,8 +1371,6 @@ class CombatMode:
                 # Main workflow loop for manually pressing the Attack button and reloading until combat ends.
                 CombatMode._loop_manual()
         except CombatModeException as e:
-            MessageLog.print_message("DEBUG: CHECK C")
-
             if CombatMode._list_of_exit_events_for_false.__contains__(e.__str__()):
                 return False
             elif CombatMode._list_of_exit_events_for_true.__contains__(e.__str__()):
