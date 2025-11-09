@@ -295,27 +295,38 @@ class Raid:
 
         # Check if the bot is at the Summon Selection screen.
         max_attempts = 5
-        for attempt_num in range(max_attempts):
-            if ImageUtils.confirm_location("select_a_summon", tries=1):
-                summon_check = Game.select_summon(Settings.summon_list, Settings.summon_element_list)
+        AUTOPICK_SUMMON = True
 
-                if summon_check:
-                    # Select the Party.
-                    if Game.find_party_and_start_mission(Settings.group_number, Settings.party_number):
-                        # Handle the rare case where joining the Raid after selecting the Summon and Party led the bot to the Quest Results screen with no loot to collect.
-                        if ImageUtils.confirm_location("no_loot", disable_adjustment = True):
-                            MessageLog.print_message("\n[RAID] Seems that the Raid just ended. Moving back to the Home screen and joining another Raid...")
-                        elif CombatMode.start_combat_mode():
-                            Game.collect_loot(is_completed = True)
-                    else:
-                        MessageLog.print_message("\n[RAID] Seems that the Raid ended before the bot was able to join. Now looking for another Raid to join...")
-                break
+        for _ in range(max_attempts):
+            in_summon_screen = False
+
+            if AUTOPICK_SUMMON:
+                # Auto-select mode
+                if ImageUtils.find_button("auto_select") or ImageUtils.find_button("auto_select_disabled"):
+                    in_summon_screen = True
             else:
-                if Game.check_for_pending():
-                    break
-        else:  # no break
+                # Manual summon selection
+                if ImageUtils.confirm_location("select_a_summon", tries=1):
+                    if Game.select_summon(Settings.summon_list, Settings.summon_element_list):
+                        in_summon_screen = True
+
+            if in_summon_screen:
+                # Summon/party selection succeeded — now try to start mission
+                if Game.find_party_and_start_mission(Settings.group_number, Settings.party_number):
+                    if ImageUtils.confirm_location("no_loot", disable_adjustment=True):
+                        MessageLog.print_message("\n[RAID] Seems that the Raid just ended. Moving back to the Home screen and joining another Raid...")
+                    elif CombatMode.start_combat_mode():
+                        Game.collect_loot(is_completed=True)
+                else:
+                    MessageLog.print_message("\n[RAID] Seems that the Raid ended before the bot was able to join. Now looking for another Raid to join...")
+                break  # success or handled failure — no need to retry
+
+            if Game.check_for_pending():
+                break  # pending check handled
+
+        else:
+            # Loop completed with no successful summon selection
             Game.find_and_click_button("reload")
             Raid.start(False)
             # raise RaidException("Failed to arrive at the Summon Selection screen.")
-
         return None
