@@ -189,10 +189,18 @@ class Raid:
         # A list of available raids to join should have appeared. Join the first one found.
         tries = 100
         recovery_time = 5
+
         while tries > 0:
             position = ImageUtils.find("raid_time_remaining")
             if position:
                 MouseUtils.move_and_click_point(position[0], position[1], "raid_time_remaining")
+                if ImageUtils.confirm_location("3_active_raids"):
+                    timeout = random.randint(30, 500)
+                    MessageLog.print_message(f"[RAID] 3 Active Raids detected. Waiting for {timeout} seconds")
+                    Game.wait(timeout)
+                    Game.find_and_click_button("reload")
+                    continue
+
                 MessageLog.print_message("[RAID] Successfully found a raid.")
                 break
             else:
